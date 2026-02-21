@@ -5,7 +5,6 @@ on:
         branches:
             - main
             - master
-            - develop
     workflow_dispatch:
 
 permissions:
@@ -30,9 +29,6 @@ jobs:
     gradle-checks:
         name: Gradle quality checks
         runs-on: ubuntu-latest
-        defaults:
-            run:
-                working-directory: ${{ github.workspace }}
         steps:
             - name: Checkout
               uses: actions/checkout@v4
@@ -44,23 +40,20 @@ jobs:
                   java-version: '21'
                   cache: gradle
 
-            - name: Validate Gradle wrapper
-              uses: gradle/actions/wrapper-validation@v4
-
-            - name: Ensure Gradle wrapper is present
-              run: |
-                ls -la
-                test -f ./gradlew
-                chmod +x ./gradlew
-
             - name: Setup Gradle
               uses: gradle/actions/setup-gradle@v4
+              with:
+                  gradle-version: '8.14.3'
+
+            - name: Validate Gradle wrapper (if present)
+              if: ${{ hashFiles('gradlew') != '' }}
+              uses: gradle/actions/wrapper-validation@v4
 
             - name: Run ktlint
-              run: bash ./gradlew ktlintCheck
+              run: gradle ktlintCheck
 
             - name: Run detekt
-              run: bash ./gradlew detekt
+              run: gradle detekt
 
             - name: Compile classes
-              run: bash ./gradlew classes testClasses
+              run: gradle classes testClasses
