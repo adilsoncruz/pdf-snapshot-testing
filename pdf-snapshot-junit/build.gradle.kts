@@ -18,4 +18,3 @@ dependencies {
     // Para gerar PDFs de teste
     testImplementation("com.github.librepdf:openpdf:1.3.30")
 }
-
