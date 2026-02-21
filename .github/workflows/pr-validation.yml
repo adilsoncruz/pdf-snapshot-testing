@@ -43,14 +43,20 @@ jobs:
             - name: Validate Gradle wrapper
               uses: gradle/actions/wrapper-validation@v4
 
+            - name: Ensure Gradle wrapper is present
+              run: |
+                ls -la
+                test -f ./gradlew
+                chmod +x ./gradlew
+
             - name: Setup Gradle
               uses: gradle/actions/setup-gradle@v4
 
             - name: Run ktlint
-              run: ./gradlew ktlintCheck
+              run: bash ./gradlew ktlintCheck
 
             - name: Run detekt
-              run: ./gradlew detekt
+              run: bash ./gradlew detekt
 
             - name: Compile classes
-              run: ./gradlew classes testClasses
+              run: bash ./gradlew classes testClasses
