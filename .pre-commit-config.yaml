@@ -13,6 +13,7 @@ repos:
         entry: ./gradlew ktlintCheck
         language: system
         pass_filenames: false
+
       - id: detekt-gradle
         name: detekt (Gradle)
         entry: ./gradlew detekt
