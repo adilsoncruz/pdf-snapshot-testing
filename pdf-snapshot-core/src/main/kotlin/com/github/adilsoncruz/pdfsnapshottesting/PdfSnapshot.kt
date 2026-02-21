@@ -1,4 +1,3 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-public object PdfSnapshot {
-}
+public object PdfSnapshot
