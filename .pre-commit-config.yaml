@@ -10,12 +10,12 @@ repos:
     hooks:
       - id: ktlint-gradle
         name: ktlintCheck (Gradle)
-        entry: ./gradlew ktlintCheck
+        entry: bash -lc 'if [ -x ./gradlew ]; then ./gradlew ktlintCheck; elif command -v gradle >/dev/null 2>&1; then gradle ktlintCheck; else echo "Gradle not found"; exit 1; fi'
         language: system
         pass_filenames: false
 
       - id: detekt-gradle
         name: detekt (Gradle)
-        entry: ./gradlew detekt
+        entry: bash -lc 'if [ -x ./gradlew ]; then ./gradlew detekt; elif command -v gradle >/dev/null 2>&1; then gradle detekt; else echo "Gradle not found"; exit 1; fi'
         language: system
         pass_filenames: false
