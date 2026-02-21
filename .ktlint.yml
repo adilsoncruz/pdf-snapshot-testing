@@ -1,0 +1,6 @@
+# Explicit ktlint configuration file in the repository.
+# Note: ktlint uses `.editorconfig` as the primary rules source.
+# This file exists to keep the lint configuration entry point visible and documented.
+
+code_style: ktlint_official
+editor_config_path: .editorconfig

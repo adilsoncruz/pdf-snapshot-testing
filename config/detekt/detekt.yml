@@ -1,0 +1,63 @@
+# Detekt configuration - relaxed for initial development
+# TODO: Gradually enable stricter rules as code quality improves
+
+style:
+    UnusedPrivateMember:
+        active: true
+    UnusedImports:
+        active: true
+    UnusedParameter:
+        active: false  # Many interface implementations have unused params
+    WildcardImport:
+        active: false  # Allow for now, refactor later
+    MaxLineLength:
+        active: false  # Allow for now
+    ReturnCount:
+        active: false  # Complex parsing logic requires multiple returns
+    MagicNumber:
+        active: false  # Many PDF/style constants
+    ThrowsCount:
+        active: false  # Allow multiple throws for validation
+
+comments:
+    CommentOverPrivateFunction:
+        active: true  # Flag comments on private functions - often redundant
+    CommentOverPrivateProperty:
+        active: true  # Flag comments on private properties - often redundant
+    UndocumentedPublicClass:
+        active: false  # Not all public classes need KDoc
+    UndocumentedPublicFunction:
+        active: false  # Not all public functions need KDoc
+    UndocumentedPublicProperty:
+        active: false  # Not all public properties need KDoc
+    OutdatedDocumentation:
+        active: true  # Flag KDoc that doesn't match function signature
+        allowParamOnConstructorProperties: true
+
+complexity:
+    TooManyFunctions:
+        active: false  # Large classes are acceptable during initial development
+    CyclomaticComplexMethod:
+        active: false  # Complex rendering logic
+    LongMethod:
+        active: false  # Rendering methods are inherently long
+    LongParameterList:
+        active: false  # Some functions need many parameters
+    NestedBlockDepth:
+        active: false  # Nested logic for data parsing
+    ComplexCondition:
+        active: false  # Allow complex conditions
+
+exceptions:
+    TooGenericExceptionCaught:
+        active: false  # Generic catch is acceptable for external libs
+    SwallowedException:
+        active: false  # Some exceptions are intentionally silenced
+
+potential-bugs:
+    ImplicitDefaultLocale:
+        active: false  # String.format locale handled appropriately
+
+naming:
+    MemberNameEqualsClassName:
+        active: false  # Version.Version is acceptable
