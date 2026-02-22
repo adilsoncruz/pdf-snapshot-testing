@@ -1,4 +1,6 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -20,6 +22,20 @@ allprojects {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "jacoco")
+
+    tasks.register("wrapper") {
+        group = "build setup"
+        description = "Delegates wrapper generation to the root project."
+        dependsOn(rootProject.tasks.named("wrapper"))
+    }
+
+    if (tasks.findByName("prepareKotlinBuildScriptModel") == null) {
+        tasks.register("prepareKotlinBuildScriptModel") {
+            group = "ide"
+            description = "Compatibility task for IDE import on subprojects."
+        }
+    }
 
     extensions.configure<DetektExtension> {
         toolVersion = "1.23.7"
@@ -35,6 +51,34 @@ subprojects {
     }
 }
 
+tasks.withType<Test>().configureEach {
+    finalizedBy(tasks.named("jacocoTestReport"))
+}
+
+tasks.withType<JacocoReport>().configureEach {
+    dependsOn(tasks.withType<Test>())
+
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.withType<JacocoCoverageVerification>().configureEach {
+    dependsOn(tasks.withType<Test>())
+
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                value = "COVEREDRATIO"
+                minimum = "95.00".toBigDecimal()
+            }
+        }
+    }
+}
+
 
 tasks.register("classes") {
     group = "build"
@@ -46,4 +90,10 @@ tasks.register("testClasses") {
     group = "verification"
     description = "Assembles test classes from all subprojects."
     dependsOn(subprojects.map { "${it.path}:testClasses" })
+}
+
+tasks.register("coverage") {
+    group = "verification"
+    description = "Runs tests and validates JaCoCo coverage in all subprojects."
+    dependsOn(subprojects.flatMap { listOf("${it.path}:test", "${it.path}:jacocoTestReport", "${it.path}:jacocoTestCoverageVerification") })
 }
