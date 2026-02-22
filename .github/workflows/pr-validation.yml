@@ -28,7 +28,7 @@ jobs:
                   configFile: commitlint.config.cjs
 
     gradle-checks:
-        name: Gradle quality checks
+        name: Gradle quality checks and coverage
         runs-on: ubuntu-latest
         steps:
             - name: Checkout
@@ -58,3 +58,9 @@ jobs:
 
             - name: Compile classes
               run: gradle classes testClasses
+
+            - name: Run tests
+              run: gradle test
+
+            - name: Validate coverage
+              run: gradle coverage

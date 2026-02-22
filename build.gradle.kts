@@ -1,4 +1,6 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
+import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
 
 plugins {
@@ -20,6 +22,7 @@ allprojects {
 subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
+    apply(plugin = "jacoco")
 
     extensions.configure<DetektExtension> {
         toolVersion = "1.23.7"
@@ -31,6 +34,34 @@ subprojects {
         extensions.configure<KotlinJvmProjectExtension> {
             jvmToolchain(21)
             explicitApi()
+        }
+    }
+
+    tasks.withType<Test>().configureEach {
+        finalizedBy(tasks.named("jacocoTestReport"))
+    }
+
+    tasks.withType<JacocoReport>().configureEach {
+        dependsOn(tasks.withType<Test>())
+
+        reports {
+            xml.required.set(true)
+            html.required.set(true)
+            csv.required.set(false)
+        }
+    }
+
+    tasks.withType<JacocoCoverageVerification>().configureEach {
+        dependsOn(tasks.withType<Test>())
+
+        violationRules {
+            rule {
+                limit {
+                    counter = "LINE"
+                    value = "COVEREDRATIO"
+                    minimum = "0.00".toBigDecimal()
+                }
+            }
         }
     }
 }
@@ -46,4 +77,10 @@ tasks.register("testClasses") {
     group = "verification"
     description = "Assembles test classes from all subprojects."
     dependsOn(subprojects.map { "${it.path}:testClasses" })
+}
+
+tasks.register("coverage") {
+    group = "verification"
+    description = "Runs tests and validates JaCoCo coverage in all subprojects."
+    dependsOn(subprojects.flatMap { listOf("${it.path}:test", "${it.path}:jacocoTestReport", "${it.path}:jacocoTestCoverageVerification") })
 }
