@@ -4,19 +4,20 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.lowagie.text.Document
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
-import org.junit.jupiter.api.Assertions.*
+import org.junit.jupiter.api.Assertions.assertFalse
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
 import java.io.ByteArrayOutputStream
 import java.io.File
-import org.junit.jupiter.api.BeforeAll
-import org.junit.jupiter.api.TestInstance
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class PdfSnapshotEngineTest {
     val config = SnapshotConfig(tolerancePercent = 0.0001f)
 
     @BeforeAll
-    fun clearSnapShots(): Unit {
+    fun clearSnapShots() {
         val dir = File(config.snapshotsDir)
 
         if (dir.exists()) {
