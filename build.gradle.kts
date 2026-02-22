@@ -24,6 +24,19 @@ subprojects {
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "jacoco")
 
+    tasks.register("wrapper") {
+        group = "build setup"
+        description = "Delegates wrapper generation to the root project."
+        dependsOn(rootProject.tasks.named("wrapper"))
+    }
+
+    if (tasks.findByName("prepareKotlinBuildScriptModel") == null) {
+        tasks.register("prepareKotlinBuildScriptModel") {
+            group = "ide"
+            description = "Compatibility task for IDE import on subprojects."
+        }
+    }
+
     extensions.configure<DetektExtension> {
         toolVersion = "1.23.7"
         buildUponDefaultConfig = true
