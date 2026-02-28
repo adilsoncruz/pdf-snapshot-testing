@@ -11,11 +11,12 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.adilsoncruz.pdfsnapshottesting"
-    version = "0.1.0-SNAPSHOT"
+    group = "com.github.adilsoncruz"
+    version = "0.2.0-SNAPSHOT"
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
 

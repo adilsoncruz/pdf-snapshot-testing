@@ -42,7 +42,6 @@ public class PdfSnapshotEngine(
         pages.mapIndexed { index, actualSnapshot ->
             val expectedSnapshot: BufferedImage = expectedSnapshots[index]
             val diff = buildDiffImage(expectedSnapshot, actualSnapshot, config)
-
             pagesResults +=
                 SnapshotPageResult(
                     index,
