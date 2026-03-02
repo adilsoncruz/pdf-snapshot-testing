@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { font-family: Arial; background:#111; color:white; }
+
+        .container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .container img {
+            max-width: 100%;
+        }
+
+        .box {
+            position: absolute;
+            border: 3px solid red;
+            cursor: pointer;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal img {
+            transform-origin: top left;
+        }
+
+        .close {
+            position: absolute;
+            top: 20px;
+            right: 40px;
+            font-size: 30px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+
+<body>
+
+<h2>PDF Snapshot Diff</h2>
+    {{TEST_RESULTS}}
+<script>
+
+    function zoomToRegion(x, y, w, h) {
+
+        const img = document.getElementById("zoomImage")
+        const modal = document.getElementById("zoomModal")
+
+        const scale = Math.min(
+            window.innerWidth / w,
+            window.innerHeight / hp
+        ) * 0.8
+
+        img.style.transform =
+            `translate(${-x}px, ${-y}px) scale(${scale})`
+
+        modal.style.display = "flex"
+    }
+
+    function closeZoom() {
+        document.getElementById("zoomModal").style.display = "none"
+    }
+
+</script>
+
+</body>
+</html>

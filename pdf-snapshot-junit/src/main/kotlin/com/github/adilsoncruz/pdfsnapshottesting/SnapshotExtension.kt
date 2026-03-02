@@ -37,6 +37,7 @@ public class SnapshotExtension : BeforeEachCallback, AfterEachCallback, BeforeAl
                     renderer.generateConsolidatedHtml(
                         grouped,
                     )
+                //val html = renderer.generateBindingBox(grouped)
 
                 indexFile.writeText(html)
                 rawDir.deleteRecursively()
@@ -45,8 +46,6 @@ public class SnapshotExtension : BeforeEachCallback, AfterEachCallback, BeforeAl
                 println("file://${indexFile.absolutePath}")
                 println()
             }
-
-            println("🔥 TODOS OS TESTES FINALIZADOS (100% confiável no Gradle)")
         }
     }
 

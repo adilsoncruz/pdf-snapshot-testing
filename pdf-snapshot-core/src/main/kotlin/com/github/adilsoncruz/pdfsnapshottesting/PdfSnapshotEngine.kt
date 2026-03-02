@@ -41,14 +41,20 @@ public class PdfSnapshotEngine(
 
         pages.mapIndexed { index, actualSnapshot ->
             val expectedSnapshot: BufferedImage = expectedSnapshots[index]
-            val diff = buildDiffImage(expectedSnapshot, actualSnapshot, config)
+            val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+            //val diff = DiffByPixel.buildDiffImage(expectedSnapshot, actualSnapshot, config)
             pagesResults +=
                 SnapshotPageResult(
                     index,
-                    expectedSnapshot.toBase64(),
-                    actualSnapshot.toBase64(),
-                    diff.image.toBase64(),
+                    diff.expectedHighlighted.toBase64(),
+                    diff.generatedHighlighted.toBase64(),
+                    diff.diffImage.toBase64(),
                     diff.matches,
+                    diff.differenceRatio,
+                    diff.tolerancePercentage,
+                    diff.addedBoxes,
+                    diff.removedBoxes,
+                    diff.changedBoxes
                 )
         }
         return SnapshotReport(results = pagesResults)
@@ -73,62 +79,85 @@ public class PdfSnapshotEngine(
 
     private fun expectedFile(name: String): File = File(config.snapshotsDir, name)
 
+    private fun deepCopy(original: BufferedImage): BufferedImage {
+        val copy = BufferedImage(
+            original.width,
+            original.height,
+            BufferedImage.TYPE_INT_ARGB
+        )
+        val g = copy.createGraphics()
+        g.drawImage(original, 0, 0, null)
+        g.dispose()
+        return copy
+    }
+
     private fun buildDiffImage(
         expected: BufferedImage,
         generated: BufferedImage,
         config: SnapshotConfig,
     ): DiffResult {
+
         val width = expected.width
         val height = expected.height
         val totalPixels = width * height
         var differentPixels = 0
-        val diffImage =
-            BufferedImage(
-                width,
-                height,
-                BufferedImage.TYPE_INT_ARGB,
-            )
+
+        // Imagens originais (somente leitura)
+        val expectedOriginal = expected
+        val generatedOriginal = generated
+
+        // Imagens para highlight (mutáveis)
+        val expectedHighlighted = deepCopy(expected)
+        val generatedHighlighted = deepCopy(generated)
+
+        val diffImage = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
+
         val minor = config.minorPixelThreshold
         val blur = config.diffBlurRadius
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-                val e = Color(expected.getRGB(x, y), true)
-                val a = Color(generated.getRGB(x, y), true)
+
+                val e = Color(expectedOriginal.getRGB(x, y), true)
+                val g = Color(generatedOriginal.getRGB(x, y), true)
 
                 val delta =
-                    kotlin.math.abs(e.red - a.red) +
-                        kotlin.math.abs(e.green - a.green) +
-                        kotlin.math.abs(e.blue - a.blue)
+                    kotlin.math.abs(e.red - g.red) +
+                        kotlin.math.abs(e.green - g.green) +
+                        kotlin.math.abs(e.blue - g.blue)
 
-                val stable = delta <= minor
+                if (delta <= minor) {
+                    diffImage.setRGB(x, y, e.rgb)
+                    continue
+                }
 
-                if (stable) {
-                    diffImage.setRGB(
-                        x,
-                        y,
-                        Color(e.red, e.green, e.blue).rgb,
-                    )
-                } else {
-                    differentPixels++
+                differentPixels++
 
-                    val eLuma = e.red + e.green + e.blue
-                    val aLuma = a.red + a.green + a.blue
+                val expectedHasContent = hasContent(e)
+                val generatedHasContent = hasContent(g)
 
-                    val color =
-                        if (aLuma < eLuma) {
-                            Color(255, 0, 0, 180)
-                        } else {
-                            Color(0, 120, 255, 180)
-                        }
+                when {
+                    // 🔵 Conteúdo removido (existia no expected)
+                    expectedHasContent && !generatedHasContent -> {
+                        val blue = Color(0, 120, 255, 200)
 
-                    drawDiffPixel(
-                        image = diffImage,
-                        x = x,
-                        y = y,
-                        color = color,
-                        radius = blur,
-                    )
+                        drawDiffPixel(diffImage, x, y, blue, blur)
+                        drawDiffPixel(expectedHighlighted, x, y, blue, blur)
+                    }
+
+                    // 🔴 Conteúdo adicionado (existe só no generated)
+                    !expectedHasContent && generatedHasContent -> {
+                        val red = Color(255, 0, 0, 200)
+
+                        drawDiffPixel(diffImage, x, y, red, blur)
+                        drawDiffPixel(generatedHighlighted, x, y, red, blur)
+                    }
+
+                    // 🟣 Ambos têm conteúdo mas são diferentes (mudança visual)
+                    else -> {
+                        val purple = Color(180, 0, 180, 200)
+                        drawDiffPixel(diffImage, x, y, purple, blur)
+                    }
                 }
             }
         }
@@ -139,7 +168,19 @@ public class PdfSnapshotEngine(
         val matches =
             differenceRatio <= config.tolerancePercent
 
-        return DiffResult(diffImage, matches)
+        return DiffResult(
+            diffImage = diffImage,
+            expectedHighlighted = expectedHighlighted,
+            generatedHighlighted = generatedHighlighted,
+            matches = matches,
+            differenceRatio = differenceRatio,
+            tolerancePercentage = config.tolerancePercent
+        )
+    }
+
+    private fun hasContent(c: Color): Boolean {
+        // Considera branco como fundo
+        return !(c.red > 245 && c.green > 245 && c.blue > 245)
     }
 
     private fun drawDiffPixel(
