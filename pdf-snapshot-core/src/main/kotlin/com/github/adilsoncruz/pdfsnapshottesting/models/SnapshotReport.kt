@@ -6,6 +6,8 @@ public data class SnapshotReport(
     val results: List<SnapshotPageResult>,
     val testName: String? = null,
     val className: String = "",
+    val expectedPageSize: Int,
+    val generatedPageSize: Int,
     val reportLink: File? = null,
 ) {
     val hasFailures: Boolean =

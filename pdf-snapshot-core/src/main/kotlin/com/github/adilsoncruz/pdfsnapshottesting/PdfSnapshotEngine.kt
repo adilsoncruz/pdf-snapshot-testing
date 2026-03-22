@@ -34,30 +34,67 @@ public class PdfSnapshotEngine(
 
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
-            return SnapshotReport(results = emptyList())
+            return SnapshotReport(results = emptyList(), expectedPageSize =  pages.size,  generatedPageSize = pages.size)
         }
 
         val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
 
-        pages.mapIndexed { index, actualSnapshot ->
-            val expectedSnapshot: BufferedImage = expectedSnapshots[index]
-            val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
-            //val diff = DiffByPixel.buildDiffImage(expectedSnapshot, actualSnapshot, config)
-            pagesResults +=
-                SnapshotPageResult(
-                    index,
-                    diff.expectedHighlighted.toBase64(),
-                    diff.generatedHighlighted.toBase64(),
-                    diff.diffImage.toBase64(),
-                    diff.matches,
-                    diff.differenceRatio,
-                    diff.tolerancePercentage,
-                    diff.addedBoxes,
-                    diff.removedBoxes,
-                    diff.changedBoxes
+        if(pages.size >= expectedSnapshots.size){
+            pages.mapIndexed { index, actualSnapshot ->
+                val expectedSnapshot: BufferedImage = if(index <= expectedSnapshots.size) expectedSnapshots[index] else BufferedImage(
+                    actualSnapshot.width,
+                    actualSnapshot.height,
+                    BufferedImage.TYPE_INT_ARGB
                 )
+                val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+
+                pagesResults +=
+                    SnapshotPageResult(
+                        index,
+                        diff.expectedHighlighted.toBase64(),
+                        diff.generatedHighlighted.toBase64(),
+                        diff.diffImage.toBase64(),
+                        diff.matches,
+                        diff.differenceRatio,
+                        diff.tolerancePercentage,
+                        diff.addedBoxes,
+                        diff.removedBoxes,
+                        diff.changedBoxes
+                    )
+            }
+            return SnapshotReport(
+                expectedPageSize = expectedSnapshots.size,
+                generatedPageSize = pages.size,
+                results = pagesResults
+            )
+        } else {
+            expectedSnapshots.mapIndexed { index, expectedSnapshot ->
+                val actualSnapshot: BufferedImage = if(index <= pages.size) pages[index] else BufferedImage(
+                    expectedSnapshot.width,
+                    expectedSnapshot.height,
+                    BufferedImage.TYPE_INT_ARGB
+                )
+                val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+                pagesResults +=
+                    SnapshotPageResult(
+                        index,
+                        diff.expectedHighlighted.toBase64(),
+                        diff.generatedHighlighted.toBase64(),
+                        diff.diffImage.toBase64(),
+                        diff.matches,
+                        diff.differenceRatio,
+                        diff.tolerancePercentage,
+                        diff.addedBoxes,
+                        diff.removedBoxes,
+                        diff.changedBoxes
+                    )
+            }
+            return SnapshotReport(
+                expectedPageSize = expectedSnapshots.size,
+                generatedPageSize = pages.size,
+                results = pagesResults
+            )
         }
-        return SnapshotReport(results = pagesResults)
     }
 
     private fun renderPages(

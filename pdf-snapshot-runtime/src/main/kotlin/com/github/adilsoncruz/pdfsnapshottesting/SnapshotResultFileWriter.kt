@@ -18,6 +18,8 @@ public object SnapshotResultFileWriter {
                     testName = context.testName,
                     className = context.className,
                     results = report.results,
+                    expectedPageSize = report.expectedPageSize,
+                    generatedPageSize = report.generatedPageSize
                 ),
             ),
         )
