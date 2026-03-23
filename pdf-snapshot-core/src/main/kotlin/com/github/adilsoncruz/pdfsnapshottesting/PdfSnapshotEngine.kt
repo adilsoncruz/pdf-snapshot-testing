@@ -41,7 +41,7 @@ public class PdfSnapshotEngine(
 
         if(pages.size >= expectedSnapshots.size){
             pages.mapIndexed { index, actualSnapshot ->
-                val expectedSnapshot: BufferedImage = if(index <= expectedSnapshots.size) expectedSnapshots[index] else BufferedImage(
+                val expectedSnapshot: BufferedImage = if(index < expectedSnapshots.size) expectedSnapshots[index] else BufferedImage(
                     actualSnapshot.width,
                     actualSnapshot.height,
                     BufferedImage.TYPE_INT_ARGB
@@ -69,7 +69,7 @@ public class PdfSnapshotEngine(
             )
         } else {
             expectedSnapshots.mapIndexed { index, expectedSnapshot ->
-                val actualSnapshot: BufferedImage = if(index <= pages.size) pages[index] else BufferedImage(
+                val actualSnapshot: BufferedImage = if(index < pages.size) pages[index] else BufferedImage(
                     expectedSnapshot.width,
                     expectedSnapshot.height,
                     BufferedImage.TYPE_INT_ARGB
