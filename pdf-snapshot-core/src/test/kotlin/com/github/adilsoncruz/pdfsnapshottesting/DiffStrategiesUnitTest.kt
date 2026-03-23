@@ -58,8 +58,8 @@ class DiffStrategiesUnitTest {
     fun `DiffByBoudingBox should detect changed area`() {
         val expected = image(30, 30, Color.WHITE)
         val generated = image(30, 30, Color.WHITE)
-        fillRect(expected, 10, 10, 8, 8, Color(20, 20, 20))
-        fillRect(generated, 10, 10, 8, 8, Color(180, 20, 180))
+        fillRect(expected, 10, 10, 8, 8, Color(40, 120, 80))
+        fillRect(generated, 10, 10, 8, 8, Color(105, 80, 90))
 
         val result = DiffByBoudingBox.buildDiffImageWithBoundingBox(expected, generated, SnapshotConfig(tolerancePercent = 0f))
 
