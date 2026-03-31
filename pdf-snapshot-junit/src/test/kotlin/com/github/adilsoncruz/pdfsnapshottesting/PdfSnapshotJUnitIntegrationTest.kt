@@ -15,10 +15,11 @@ import org.junit.platform.launcher.core.LauncherFactory
 import org.junit.platform.launcher.listeners.SummaryGeneratingListener
 import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Files
 import java.nio.file.Path
 
 private object SnapshotIntegrationFixtures {
-    lateinit var snapshotsDir: Path
+    var snapshotsDir: Path = Files.createTempDirectory("pdf-snapshot-junit-fixture")
 }
 
 @EnablePdfSnapshots
