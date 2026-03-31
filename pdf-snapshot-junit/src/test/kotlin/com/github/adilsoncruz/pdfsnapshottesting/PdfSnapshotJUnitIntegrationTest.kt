@@ -6,6 +6,7 @@ import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
@@ -22,6 +23,7 @@ private object SnapshotIntegrationFixtures {
 }
 
 @EnablePdfSnapshots
+@Disabled("Executed programmatically by PdfSnapshotJUnitIntegrationTest")
 class SnapshotExtensionSampleSpec {
     @Test
     fun `should execute snapshot assertion through junit extension lifecycle`() {
@@ -66,6 +68,7 @@ class PdfSnapshotJUnitIntegrationTest {
         val request =
             LauncherDiscoveryRequestBuilder.request()
                 .selectors(selectClass(SnapshotExtensionSampleSpec::class.java))
+                .configurationParameter("junit.jupiter.conditions.deactivate", "org.junit.*DisabledCondition")
                 .build()
 
         val listener = SummaryGeneratingListener()
