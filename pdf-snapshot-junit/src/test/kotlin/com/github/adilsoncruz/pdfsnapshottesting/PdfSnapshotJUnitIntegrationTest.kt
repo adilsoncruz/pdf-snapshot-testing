@@ -22,7 +22,7 @@ private object SnapshotIntegrationFixtures {
 }
 
 @EnablePdfSnapshots
-class SnapshotExtensionSampleTest {
+class SnapshotExtensionSampleSpec {
     @Test
     fun `should execute snapshot assertion through junit extension lifecycle`() {
         val pdfBytes = generatePdf("sample content")
@@ -65,7 +65,7 @@ class PdfSnapshotJUnitIntegrationTest {
 
         val request =
             LauncherDiscoveryRequestBuilder.request()
-                .selectors(selectClass(SnapshotExtensionSampleTest::class.java))
+                .selectors(selectClass(SnapshotExtensionSampleSpec::class.java))
                 .build()
 
         val listener = SummaryGeneratingListener()
