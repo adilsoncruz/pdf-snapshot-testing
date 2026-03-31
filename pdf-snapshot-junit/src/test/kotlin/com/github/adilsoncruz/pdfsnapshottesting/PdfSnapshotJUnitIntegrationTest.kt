@@ -2,7 +2,6 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.lowagie.text.Document
-import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -26,7 +25,7 @@ private object SnapshotIntegrationFixtures {
 class SnapshotExtensionSampleSpec {
     @Test
     fun `should execute snapshot assertion through junit extension lifecycle`() {
-        val pdfBytes = generatePdf("sample content")
+        val pdfBytes = generatePdf()
 
         assertPdfBySnapshot(
             expected = "sample.pdf",
@@ -40,13 +39,13 @@ class SnapshotExtensionSampleSpec {
         )
     }
 
-    private fun generatePdf(text: String): ByteArray {
+    private fun generatePdf(): ByteArray {
         val out = ByteArrayOutputStream()
         val document = Document()
         PdfWriter.getInstance(document, out)
 
         document.open()
-        document.add(Paragraph(text))
+        document.newPage()
         document.close()
 
         return out.toByteArray()
