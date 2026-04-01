@@ -19,7 +19,7 @@ public object SnapshotResultFileWriter {
                     className = context.className,
                     results = report.results,
                     expectedPageSize = report.expectedPageSize,
-                    generatedPageSize = report.generatedPageSize
+                    generatedPageSize = report.generatedPageSize,
                 ),
             ),
         )

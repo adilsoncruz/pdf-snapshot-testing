@@ -34,11 +34,11 @@ public class SnapshotExtension : BeforeEachCallback, AfterEachCallback, BeforeAl
                 val renderer = SnapshotReportRenderer()
 
                 val html =
-                    //renderer.generateConsolidatedHtml(
+                    // renderer.generateConsolidatedHtml(
                     renderer.generateReport(
                         grouped,
                     )
-                //val html = renderer.generateBindingBox(grouped)
+                // val html = renderer.generateBindingBox(grouped)
 
                 indexFile.writeText(html)
                 rawDir.deleteRecursively()

@@ -13,7 +13,6 @@ public object DiffByBoudingBox {
         generated: BufferedImage,
         config: SnapshotConfig,
     ): DiffResult {
-
         val width = expected.width
         val height = expected.height
         val totalPixels = width * height
@@ -34,7 +33,6 @@ public object DiffByBoudingBox {
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-
                 val e = Color(expected.getRGB(x, y), true)
                 val g = Color(generated.getRGB(x, y), true)
 
@@ -124,15 +122,13 @@ public object DiffByBoudingBox {
     private fun findBoundingBoxes(
         mask: Array<BooleanArray>,
         width: Int,
-        height: Int
+        height: Int,
     ): List<BoundingBox> {
-
         val visited = Array(height) { BooleanArray(width) }
         val boxes = mutableListOf<BoundingBox>()
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-
                 if (!mask[y][x] || visited[y][x]) continue
 
                 var minX = x
@@ -174,8 +170,8 @@ public object DiffByBoudingBox {
                             minX,
                             minY,
                             maxX - minX + 1,
-                            maxY - minY + 1
-                        )
+                            maxY - minY + 1,
+                        ),
                     )
                 }
             }
@@ -187,7 +183,7 @@ public object DiffByBoudingBox {
     private fun highlightBox(
         image: BufferedImage,
         box: BoundingBox,
-        color: Color
+        color: Color,
     ) {
         val g = image.createGraphics()
         g.color = color
@@ -196,11 +192,12 @@ public object DiffByBoudingBox {
     }
 
     private fun deepCopy(original: BufferedImage): BufferedImage {
-        val copy = BufferedImage(
-            original.width,
-            original.height,
-            BufferedImage.TYPE_INT_ARGB
-        )
+        val copy =
+            BufferedImage(
+                original.width,
+                original.height,
+                BufferedImage.TYPE_INT_ARGB,
+            )
         val g = copy.createGraphics()
         g.drawImage(original, 0, 0, null)
         g.dispose()
