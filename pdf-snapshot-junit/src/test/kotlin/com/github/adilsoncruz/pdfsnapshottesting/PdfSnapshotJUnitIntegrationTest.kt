@@ -72,10 +72,12 @@ class PdfSnapshotJUnitIntegrationTest {
                 .build()
 
         val listener = SummaryGeneratingListener()
-        val launcher = LauncherFactory.create()
 
-        launcher.registerTestExecutionListeners(listener)
-        launcher.execute(request)
+        LauncherFactory.openSession().use { session ->
+            val launcher = session.launcher
+            launcher.registerTestExecutionListeners(listener)
+            launcher.execute(request)
+        }
 
         val summary = listener.summary
         assertEquals(1, summary.testsSucceededCount)
