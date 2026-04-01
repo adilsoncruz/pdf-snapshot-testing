@@ -34,46 +34,57 @@ public class PdfSnapshotEngine(
 
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
-            return SnapshotReport(results = emptyList(), expectedPageSize =  pages.size,  generatedPageSize = pages.size)
+            return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
         val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
 
-        if(pages.size >= expectedSnapshots.size){
-            pages.mapIndexed { index, actualSnapshot ->
-                val expectedSnapshot: BufferedImage = if(index < expectedSnapshots.size) expectedSnapshots[index] else BufferedImage(
-                    actualSnapshot.width,
-                    actualSnapshot.height,
-                    BufferedImage.TYPE_INT_ARGB
-                )
-                val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+        if (pages.size >= expectedSnapshots.size)
+            {
+                pages.mapIndexed { index, actualSnapshot ->
+                    val expectedSnapshot: BufferedImage =
+                        if (index < expectedSnapshots.size) {
+                            expectedSnapshots[index]
+                        } else {
+                            BufferedImage(
+                                actualSnapshot.width,
+                                actualSnapshot.height,
+                                BufferedImage.TYPE_INT_ARGB,
+                            )
+                        }
+                    val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
 
-                pagesResults +=
-                    SnapshotPageResult(
-                        index,
-                        diff.expectedHighlighted.toBase64(),
-                        diff.generatedHighlighted.toBase64(),
-                        diff.diffImage.toBase64(),
-                        diff.matches,
-                        diff.differenceRatio,
-                        diff.tolerancePercentage,
-                        diff.addedBoxes,
-                        diff.removedBoxes,
-                        diff.changedBoxes
-                    )
-            }
-            return SnapshotReport(
-                expectedPageSize = expectedSnapshots.size,
-                generatedPageSize = pages.size,
-                results = pagesResults
-            )
-        } else {
-            expectedSnapshots.mapIndexed { index, expectedSnapshot ->
-                val actualSnapshot: BufferedImage = if(index < pages.size) pages[index] else BufferedImage(
-                    expectedSnapshot.width,
-                    expectedSnapshot.height,
-                    BufferedImage.TYPE_INT_ARGB
+                    pagesResults +=
+                        SnapshotPageResult(
+                            index,
+                            diff.expectedHighlighted.toBase64(),
+                            diff.generatedHighlighted.toBase64(),
+                            diff.diffImage.toBase64(),
+                            diff.matches,
+                            diff.differenceRatio,
+                            diff.tolerancePercentage,
+                            diff.addedBoxes,
+                            diff.removedBoxes,
+                            diff.changedBoxes,
+                        )
+                }
+                return SnapshotReport(
+                    expectedPageSize = expectedSnapshots.size,
+                    generatedPageSize = pages.size,
+                    results = pagesResults,
                 )
+            } else {
+            expectedSnapshots.mapIndexed { index, expectedSnapshot ->
+                val actualSnapshot: BufferedImage =
+                    if (index < pages.size) {
+                        pages[index]
+                    } else {
+                        BufferedImage(
+                            expectedSnapshot.width,
+                            expectedSnapshot.height,
+                            BufferedImage.TYPE_INT_ARGB,
+                        )
+                    }
                 val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
                 pagesResults +=
                     SnapshotPageResult(
@@ -86,13 +97,13 @@ public class PdfSnapshotEngine(
                         diff.tolerancePercentage,
                         diff.addedBoxes,
                         diff.removedBoxes,
-                        diff.changedBoxes
+                        diff.changedBoxes,
                     )
             }
             return SnapshotReport(
                 expectedPageSize = expectedSnapshots.size,
                 generatedPageSize = pages.size,
-                results = pagesResults
+                results = pagesResults,
             )
         }
     }
@@ -117,11 +128,12 @@ public class PdfSnapshotEngine(
     private fun expectedFile(name: String): File = File(config.snapshotsDir, name)
 
     private fun deepCopy(original: BufferedImage): BufferedImage {
-        val copy = BufferedImage(
-            original.width,
-            original.height,
-            BufferedImage.TYPE_INT_ARGB
-        )
+        val copy =
+            BufferedImage(
+                original.width,
+                original.height,
+                BufferedImage.TYPE_INT_ARGB,
+            )
         val g = copy.createGraphics()
         g.drawImage(original, 0, 0, null)
         g.dispose()
@@ -133,7 +145,6 @@ public class PdfSnapshotEngine(
         generated: BufferedImage,
         config: SnapshotConfig,
     ): DiffResult {
-
         val width = expected.width
         val height = expected.height
         val totalPixels = width * height
@@ -154,7 +165,6 @@ public class PdfSnapshotEngine(
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-
                 val e = Color(expectedOriginal.getRGB(x, y), true)
                 val g = Color(generatedOriginal.getRGB(x, y), true)
 
@@ -211,7 +221,7 @@ public class PdfSnapshotEngine(
             generatedHighlighted = generatedHighlighted,
             matches = matches,
             differenceRatio = differenceRatio,
-            tolerancePercentage = config.tolerancePercent
+            tolerancePercentage = config.tolerancePercent,
         )
     }
 

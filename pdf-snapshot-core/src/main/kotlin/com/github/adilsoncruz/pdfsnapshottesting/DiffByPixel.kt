@@ -7,13 +7,11 @@ import java.awt.Color
 import java.awt.image.BufferedImage
 
 public object DiffByPixel {
-
     public fun buildDiffImage(
         expected: BufferedImage,
         generated: BufferedImage,
         config: SnapshotConfig,
     ): DiffResult {
-
         val width = expected.width
         val height = expected.height
         val totalPixels = width * height
@@ -37,7 +35,6 @@ public object DiffByPixel {
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-
                 val e = Color(expectedOriginal.getRGB(x, y), true)
                 val g = Color(generatedOriginal.getRGB(x, y), true)
 
@@ -63,7 +60,7 @@ public object DiffByPixel {
                 generatedHighlighted = generatedHighlighted,
                 matches = true,
                 differenceRatio = 0f,
-                tolerancePercentage = config.tolerancePercent
+                tolerancePercentage = config.tolerancePercent,
             )
         }
 
@@ -81,7 +78,6 @@ public object DiffByPixel {
         val g2 = diffImage.createGraphics()
 
         if (isGlobalBackgroundChange) {
-
             // destaca página inteira
             g2.drawImage(expectedOriginal, 0, 0, null)
 
@@ -100,7 +96,7 @@ public object DiffByPixel {
                 generatedHighlighted = generatedHighlighted,
                 matches = false,
                 differenceRatio = differenceRatio,
-                tolerancePercentage = config.tolerancePercent
+                tolerancePercentage = config.tolerancePercent,
             )
         }
 
@@ -108,7 +104,6 @@ public object DiffByPixel {
 
         for (y in 0 until height) {
             for (x in 0 until width) {
-
                 val e = Color(expectedOriginal.getRGB(x, y), true)
                 val g = Color(generatedOriginal.getRGB(x, y), true)
 
@@ -156,16 +151,17 @@ public object DiffByPixel {
             generatedHighlighted = generatedHighlighted,
             matches = differenceRatio <= config.tolerancePercent,
             differenceRatio = differenceRatio,
-            tolerancePercentage = config.tolerancePercent
+            tolerancePercentage = config.tolerancePercent,
         )
     }
 
     private fun deepCopy(original: BufferedImage): BufferedImage {
-        val copy = BufferedImage(
-            original.width,
-            original.height,
-            BufferedImage.TYPE_INT_ARGB
-        )
+        val copy =
+            BufferedImage(
+                original.width,
+                original.height,
+                BufferedImage.TYPE_INT_ARGB,
+            )
         val g = copy.createGraphics()
         g.drawImage(original, 0, 0, null)
         g.dispose()

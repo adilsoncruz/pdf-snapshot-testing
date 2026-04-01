@@ -1,7 +1,5 @@
 package com.github.adilsoncruz.pdfsnapshottesting.models
 
-import java.awt.Rectangle
-
 public data class SnapshotPageResult(
     val pageIndex: Int,
     val expected: String,
