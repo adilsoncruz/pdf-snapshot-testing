@@ -3,7 +3,7 @@ package com.github.adilsoncruz.pdfsnapshottesting
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 
-public fun assertPdfBySnapshot(
+public fun assertPdfByFile(
     expected: String,
     pdfBytes: ByteArray,
     config: SnapshotConfig = SnapshotConfig(),
