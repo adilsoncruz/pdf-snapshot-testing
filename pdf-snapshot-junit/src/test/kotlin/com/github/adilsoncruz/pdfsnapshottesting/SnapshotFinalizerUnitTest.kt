@@ -20,7 +20,7 @@ class SnapshotFinalizerUnitTest {
             SnapshotReport(
                 testName = "sample-test",
                 className = "SampleClass",
-                results = listOf(SnapshotPageResult(0, "e", "g", "d", true, 0f, 0.1f)),
+                results = listOf(SnapshotPageResult("0", "e", "g", "d", true, 0f, 0.1f)),
                 expectedPageSize = 1,
                 generatedPageSize = 1,
             )
