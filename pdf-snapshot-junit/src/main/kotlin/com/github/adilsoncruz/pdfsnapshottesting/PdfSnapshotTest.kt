@@ -80,7 +80,7 @@ public class PdfSnapshotTest(
       }
     }
 
-    AllureSnapshotAttachmentPublisher.publish(report, config.enableAllureAttachments)
+    AllureSnapshotAttachmentPublisher.publish(report, enabled = true)
 
     val dynamicTest = report.results.map { result: SnapshotPageResult ->
       DynamicTest.dynamicTest(result.name) {

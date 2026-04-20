@@ -21,7 +21,7 @@ public fun assertPdfByFile(
         }
     }
 
-    AllureSnapshotAttachmentPublisher.publish(report, config.enableAllureAttachments)
+    AllureSnapshotAttachmentPublisher.publish(report, enabled = true)
 
     return report.assertAll()
 }

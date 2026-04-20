@@ -28,6 +28,25 @@ internal object AllureSnapshotAttachmentPublisher {
 
         var attachedCount = 0
 
+        if (report.results.isEmpty()) {
+            val summary =
+                """
+                testName=${report.testName}
+                className=${report.className}
+                message=No snapshot pages were generated for this execution.
+                """.trimIndent()
+            return runCatching {
+                addAttachmentMethod.invoke(
+                    null,
+                    "snapshot-summary",
+                    "text/plain",
+                    ByteArrayInputStream(summary.toByteArray(Charsets.UTF_8)),
+                    "txt",
+                )
+                1
+            }.getOrDefault(0)
+        }
+
         report.results.forEach { page ->
             attachedCount +=
                 attachContentIfPresent(

@@ -93,6 +93,24 @@ class AllureSnapshotAttachmentPublisherUnitTest {
         assertEquals(0, Allure.attachments().size)
     }
 
+    @Test
+    fun `should add summary attachment when report has no pages`() {
+        val report =
+            SnapshotReport(
+                testName = "test",
+                className = "AnyTest",
+                results = emptyList(),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        val attachedCount = AllureSnapshotAttachmentPublisher.publish(report, enabled = true)
+
+        assertEquals(1, attachedCount)
+        assertEquals(1, Allure.attachments().size)
+        assertEquals("snapshot-summary", Allure.attachments().first().name)
+    }
+
     private fun tempPng(prefix: String): File {
         val file = File.createTempFile(prefix, ".png")
         file.writeBytes(byteArrayOf(1, 2, 3, 4))
