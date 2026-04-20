@@ -24,7 +24,10 @@ class PdfSnapshotCoreIntegrationTest {
 
         val report = engine.run("baseline.pdf", generated)
 
-        assertEquals(0, report.results.size)
+        assertEquals(1, report.results.size)
+        assertTrue(report.results.first().expected.isNotBlank())
+        assertTrue(report.results.first().generated.isNotBlank())
+        assertTrue(report.results.first().diff.isNotBlank())
         assertFalse(report.hasFailures)
         assertTrue(tempDir.resolve("baseline.pdf").toFile().exists())
     }

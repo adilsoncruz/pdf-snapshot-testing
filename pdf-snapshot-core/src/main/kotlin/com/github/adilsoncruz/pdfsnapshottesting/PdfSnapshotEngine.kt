@@ -39,7 +39,23 @@ public class PdfSnapshotEngine(
 
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
-            return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
+            val baselineResults =
+                pages.mapIndexed { index, snapshot ->
+                    val pageBase64 = snapshot.toBase64()
+                    SnapshotPageResult(
+                        "Page ${index + 1}",
+                        pageBase64,
+                        pageBase64,
+                        pageBase64,
+                        true,
+                        0f,
+                        config.tolerancePercent,
+                        emptyList(),
+                        emptyList(),
+                        emptyList(),
+                    )
+                }
+            return SnapshotReport(results = baselineResults, expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
         val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
@@ -276,7 +292,15 @@ public class PdfSnapshotEngine(
         val pages = renderPages(pdfBytes, config.dpi)
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
-            return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
+            val pageImage = pages[pageIndex]
+            val baselineResults =
+                requests.map { request ->
+                    processBaselineRegion(
+                        pageImage = pageImage,
+                        request = request,
+                    )
+                }
+            return SnapshotReport(results = baselineResults, expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
         val pageImage = pages[pageIndex]
@@ -335,6 +359,34 @@ public class PdfSnapshotEngine(
             diff.addedBoxes,
             diff.removedBoxes,
             diff.changedBoxes,
+        )
+    }
+
+    private fun processBaselineRegion(
+        pageImage: BufferedImage,
+        request: SnapshotRequest,
+    ): SnapshotPageResult {
+        val imageRegion = convertPdfRegionToImageRegion(request.region, config.dpi)
+        val snapshotRegion =
+            pageImage.getSubimage(
+                imageRegion.x,
+                imageRegion.y,
+                imageRegion.width,
+                imageRegion.height,
+            )
+
+        val regionBase64 = snapshotRegion.toBase64()
+        return SnapshotPageResult(
+            request.name,
+            regionBase64,
+            regionBase64,
+            regionBase64,
+            true,
+            0f,
+            config.tolerancePercent,
+            emptyList(),
+            emptyList(),
+            emptyList(),
         )
     }
 
