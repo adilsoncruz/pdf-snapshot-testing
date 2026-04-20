@@ -23,24 +23,3 @@ public fun assertPdfByFile(
 
     return report.assertAll()
 }
-
-//public fun assertPdfBySnapshot(
-//    expected: String,
-//    pdfBytes: ByteArray,
-//    config: SnapshotConfig = SnapshotConfig(),
-//) {
-//    val report =
-//        PdfSnapshotTest(
-//            expectedPdf = expected,
-//            pdfBytes = pdfBytes,
-//            engine = PdfSnapshotEngine(config),
-//        ).execute()
-//
-//    CurrentTest.get().let { uniqueId ->
-//        if (uniqueId != null) {
-//            SnapshotResultFileWriter.write(SnapshotContextManager.get(uniqueId)!!, report)
-//        }
-//    }
-//
-//    return report.assertAll()
-//}
