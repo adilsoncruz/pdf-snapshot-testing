@@ -1,6 +1,6 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 
 public class SnapshotReportRenderer {
@@ -42,7 +42,7 @@ public class SnapshotReportRenderer {
     private fun buildTestPageSection(report: SnapshotReport): String {
         val template = loadTemplate("snapshot-session.html")
         val pages = mutableListOf<String>()
-        report.results.mapIndexed { index, result: SnapshotPageResult ->
+        report.results.mapIndexed { index, result: SnapshotResult ->
             pages.add(
                 template
                     .replace("{{color}}", PASSED.takeIf { result.matches } ?:  FAILED)

@@ -1,6 +1,6 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
@@ -20,7 +20,7 @@ class SnapshotFinalizerUnitTest {
             SnapshotReport(
                 testName = "sample-test",
                 className = "SampleClass",
-                results = listOf(SnapshotPageResult("0", "e", "g", "d", true, 0f, 0.1f)),
+                results = listOf(SnapshotResult("0", "e", "g", "d", true, 0f, 0.1f)),
                 expectedPageSize = 1,
                 generatedPageSize = 1,
             )

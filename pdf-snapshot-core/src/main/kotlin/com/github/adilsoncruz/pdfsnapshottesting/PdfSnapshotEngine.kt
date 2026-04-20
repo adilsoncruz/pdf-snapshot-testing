@@ -1,18 +1,14 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.DiffResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.ImageRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReportByRegion
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
-import java.awt.Color
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -33,7 +29,7 @@ public class PdfSnapshotEngine(
         pdfBytes: ByteArray,
     ): SnapshotReport {
         val pages = renderPages(pdfBytes, config.dpi)
-        val pagesResults = mutableListOf<SnapshotPageResult>()
+        val pagesResults = mutableListOf<SnapshotResult>()
 
         val expectedPdfFile = expectedFile(expectedPdf)
 
@@ -60,7 +56,7 @@ public class PdfSnapshotEngine(
                     val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
 
                     pagesResults +=
-                        SnapshotPageResult(
+                        SnapshotResult(
                             "Page ${index + 1}",
                             diff.expectedHighlighted.toBase64(),
                             diff.generatedHighlighted.toBase64(),
@@ -92,7 +88,7 @@ public class PdfSnapshotEngine(
                     }
                 val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
                 pagesResults +=
-                    SnapshotPageResult(
+                    SnapshotResult(
                         "Page ${index + 1}",
                         diff.expectedHighlighted.toBase64(),
                         diff.generatedHighlighted.toBase64(),
@@ -145,114 +141,6 @@ public class PdfSnapshotEngine(
         return copy
     }
 
-    private fun buildDiffImage(
-        expected: BufferedImage,
-        generated: BufferedImage,
-        config: SnapshotConfig,
-    ): DiffResult {
-        val width = expected.width
-        val height = expected.height
-        val totalPixels = width * height
-        var differentPixels = 0
-
-        // Imagens originais (somente leitura)
-        val expectedOriginal = expected
-        val generatedOriginal = generated
-
-        // Imagens para highlight (mutáveis)
-        val expectedHighlighted = deepCopy(expected)
-        val generatedHighlighted = deepCopy(generated)
-
-        val diffImage = BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB)
-
-        val minor = config.minorPixelThreshold
-        val blur = config.diffBlurRadius
-
-        for (y in 0 until height) {
-            for (x in 0 until width) {
-                val e = Color(expectedOriginal.getRGB(x, y), true)
-                val g = Color(generatedOriginal.getRGB(x, y), true)
-
-                val delta =
-                    kotlin.math.abs(e.red - g.red) +
-                        kotlin.math.abs(e.green - g.green) +
-                        kotlin.math.abs(e.blue - g.blue)
-
-                if (delta <= minor) {
-                    diffImage.setRGB(x, y, e.rgb)
-                    continue
-                }
-
-                differentPixels++
-
-                val expectedHasContent = hasContent(e)
-                val generatedHasContent = hasContent(g)
-
-                when {
-                    // 🔵 Conteúdo removido (existia no expected)
-                    expectedHasContent && !generatedHasContent -> {
-                        val blue = Color(0, 120, 255, 200)
-
-                        drawDiffPixel(diffImage, x, y, blue, blur)
-                        drawDiffPixel(expectedHighlighted, x, y, blue, blur)
-                    }
-
-                    // 🔴 Conteúdo adicionado (existe só no generated)
-                    !expectedHasContent && generatedHasContent -> {
-                        val red = Color(255, 0, 0, 200)
-
-                        drawDiffPixel(diffImage, x, y, red, blur)
-                        drawDiffPixel(generatedHighlighted, x, y, red, blur)
-                    }
-
-                    // 🟣 Ambos têm conteúdo mas são diferentes (mudança visual)
-                    else -> {
-                        val purple = Color(180, 0, 180, 200)
-                        drawDiffPixel(diffImage, x, y, purple, blur)
-                    }
-                }
-            }
-        }
-
-        val differenceRatio =
-            differentPixels.toFloat() / totalPixels.toFloat()
-
-        val matches =
-            differenceRatio <= config.tolerancePercent
-
-        return DiffResult(
-            diffImage = diffImage,
-            expectedHighlighted = expectedHighlighted,
-            generatedHighlighted = generatedHighlighted,
-            matches = matches,
-            differenceRatio = differenceRatio,
-            tolerancePercentage = config.tolerancePercent,
-        )
-    }
-
-    private fun hasContent(c: Color): Boolean {
-        // Considera branco como fundo
-        return !(c.red > 245 && c.green > 245 && c.blue > 245)
-    }
-
-    private fun drawDiffPixel(
-        image: BufferedImage,
-        x: Int,
-        y: Int,
-        color: Color,
-        radius: Int,
-    ) {
-        for (dy in -radius..radius) {
-            for (dx in -radius..radius) {
-                val px = x + dx
-                val py = y + dy
-                if (px in 0 until image.width && py in 0 until image.height) {
-                    image.setRGB(px, py, color.rgb)
-                }
-            }
-        }
-    }
-
     private fun BufferedImage.toBase64(): String {
         val outputStream = ByteArrayOutputStream()
         ImageIO.write(this, "png", outputStream)
@@ -264,8 +152,6 @@ public class PdfSnapshotEngine(
         pdfBytes: ByteArray,
         pageIndex: Int,
         requests: List<SnapshotRequest> = emptyList(),
-        drawOverlay: Boolean = false,
-        overlayName: String? = null
     ): SnapshotReport {
 
         require(requests.isNotEmpty()) {
@@ -301,7 +187,7 @@ public class PdfSnapshotEngine(
         expectedImage: BufferedImage,
         pageImage: BufferedImage,
         request: SnapshotRequest,
-    ): SnapshotPageResult {
+    ): SnapshotResult {
 
         val imageRegion = convertPdfRegionToImageRegion(
             request.region,
@@ -324,7 +210,7 @@ public class PdfSnapshotEngine(
 
         val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedImageRegion, actualSnapshotRegion, config)
 
-        return SnapshotPageResult(
+        return SnapshotResult(
             request.name,
             diff.expectedHighlighted.toBase64(),
             diff.generatedHighlighted.toBase64(),
@@ -351,5 +237,4 @@ public class PdfSnapshotEngine(
             height = (pdfRegion.height * scale).toInt()
         )
     }
-
 }

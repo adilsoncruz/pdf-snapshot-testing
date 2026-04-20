@@ -1,6 +1,6 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -23,7 +23,7 @@ class SnapshotExtensionSampleSpec {
             SnapshotReport(
                 testName = context.testName,
                 className = context.className,
-                results = listOf(SnapshotPageResult("0", "e", "g", "d", true, 0f, 0.1f)),
+                results = listOf(SnapshotResult("0", "e", "g", "d", true, 0f, 0.1f)),
                 expectedPageSize = 1,
                 generatedPageSize = 1,
             )

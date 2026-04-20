@@ -2,11 +2,9 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
-import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 import org.junit.jupiter.api.DynamicTest
 
 public class PdfSnapshotTest(
@@ -80,7 +78,7 @@ public class PdfSnapshotTest(
       }
     }
 
-    val dynamicTest = report.results.map { result: SnapshotPageResult ->
+    val dynamicTest = report.results.map { result: SnapshotResult ->
       DynamicTest.dynamicTest(result.name) {
         if(result.matches) Unit else  { error("Snapshot '${result.name}' does not match. ")}
       }
