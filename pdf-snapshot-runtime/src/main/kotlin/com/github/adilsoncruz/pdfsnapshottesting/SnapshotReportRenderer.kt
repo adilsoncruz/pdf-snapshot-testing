@@ -26,8 +26,16 @@ public class SnapshotReportRenderer {
 
                 val testResultSections =
                     reports.map { report ->
+                        val metrics = report.results.firstOrNull()
+                        val metricsHtml =
+                            if (metrics != null) {
+                                "<h4>difference ratio: ${metrics.differenceRatio}</br> tolerance percentage: ${metrics.tolerancePercentage}%</h4>"
+                            } else {
+                                "<h4>No diff data available (snapshot baseline generated).</h4>"
+                            }
+
                         "<h3>${report.testName}</h3>" +
-                            "<h4>difference ratio: ${report.results.first().differenceRatio}</br> tolerance percentage: ${report.results.first().tolerancePercentage}%</h4>" +
+                            metricsHtml +
                             buildTestPageSection(report)
                     }.joinToString("")
                 template
@@ -40,12 +48,16 @@ public class SnapshotReportRenderer {
     }
 
     private fun buildTestPageSection(report: SnapshotReport): String {
+        if (report.results.isEmpty()) {
+            return "<p>No snapshot pages were compared in this run.</p>"
+        }
+
         val template = loadTemplate("snapshot-session.html")
         val pages = mutableListOf<String>()
-        report.results.mapIndexed { index, result: SnapshotPageResult ->
+        report.results.map { result: SnapshotPageResult ->
             pages.add(
                 template
-                    .replace("{{color}}", PASSED.takeIf { result.matches } ?:  FAILED)
+                    .replace("{{color}}", PASSED.takeIf { result.matches } ?: FAILED)
                     .replace("{{page}}", result.name)
                     .replace("{{expected}}", result.expected)
                     .replace("{{diff}}", result.diff)

@@ -11,7 +11,8 @@ public object SnapshotResultFileWriter {
         val dir = File("build/pdf-snapshots/raw")
         dir.mkdirs()
 
-        val file = File(dir, "${context.className}.json")
+        val safeId = context.uniqueId.replace(Regex("[^a-zA-Z0-9._-]"), "_")
+        val file = File(dir, "${context.className}-$safeId.json")
         file.writeText(
             SnapshotJsonSerializer.serialize(
                 SnapshotReport(
