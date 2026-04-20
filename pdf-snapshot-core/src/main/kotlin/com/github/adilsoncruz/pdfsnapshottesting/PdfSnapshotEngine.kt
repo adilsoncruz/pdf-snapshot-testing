@@ -1,9 +1,14 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.DiffResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.ImageRegion
+import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReportByRegion
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
@@ -56,7 +61,7 @@ public class PdfSnapshotEngine(
 
                     pagesResults +=
                         SnapshotPageResult(
-                            index,
+                            "Page ${index + 1}",
                             diff.expectedHighlighted.toBase64(),
                             diff.generatedHighlighted.toBase64(),
                             diff.diffImage.toBase64(),
@@ -88,7 +93,7 @@ public class PdfSnapshotEngine(
                 val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
                 pagesResults +=
                     SnapshotPageResult(
-                        index,
+                        "Page ${index + 1}",
                         diff.expectedHighlighted.toBase64(),
                         diff.generatedHighlighted.toBase64(),
                         diff.diffImage.toBase64(),
@@ -253,4 +258,98 @@ public class PdfSnapshotEngine(
         ImageIO.write(this, "png", outputStream)
         return Base64.getEncoder().encodeToString(outputStream.toByteArray())
     }
+
+    public fun run(
+        expectedPdf: String,
+        pdfBytes: ByteArray,
+        pageIndex: Int,
+        requests: List<SnapshotRequest> = emptyList(),
+        drawOverlay: Boolean = false,
+        overlayName: String? = null
+    ): SnapshotReport {
+
+        require(requests.isNotEmpty()) {
+            "No snapshot regions defined"
+        }
+
+        val expectedPdfFile = expectedFile(expectedPdf)
+        val pages = renderPages(pdfBytes, config.dpi)
+        if (!expectedPdfFile.exists()) {
+            expectedPdfFile.writeBytes(pdfBytes)
+            return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
+        }
+
+        val pageImage = pages[pageIndex]
+        val expectedImage =  renderPages(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
+
+        val results = requests.map { request ->
+            processRegion(
+                expectedImage = expectedImage,
+                pageImage = pageImage,
+                request = request,
+            )
+        }
+
+        return SnapshotReport(
+            expectedPageSize = 1,
+            generatedPageSize = 1,
+            results = results
+        )
+    }
+
+    private fun processRegion(
+        expectedImage: BufferedImage,
+        pageImage: BufferedImage,
+        request: SnapshotRequest,
+    ): SnapshotPageResult {
+
+        val imageRegion = convertPdfRegionToImageRegion(
+            request.region,
+            config.dpi
+        )
+
+        val expectedImageRegion = expectedImage.getSubimage(
+            imageRegion.x,
+            imageRegion.y,
+            imageRegion.width,
+            imageRegion.height
+        )
+
+        val actualSnapshotRegion = pageImage.getSubimage(
+            imageRegion.x,
+            imageRegion.y,
+            imageRegion.width,
+            imageRegion.height
+        )
+
+        val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedImageRegion, actualSnapshotRegion, config)
+
+        return SnapshotPageResult(
+            request.name,
+            diff.expectedHighlighted.toBase64(),
+            diff.generatedHighlighted.toBase64(),
+            diff.diffImage.toBase64(),
+            diff.matches,
+            diff.differenceRatio,
+            diff.tolerancePercentage,
+            diff.addedBoxes,
+            diff.removedBoxes,
+            diff.changedBoxes,
+        )
+    }
+
+    private fun convertPdfRegionToImageRegion(
+        pdfRegion: PdfRegion,
+        dpi: Float
+    ): ImageRegion {
+        val scale = dpi / 72f
+
+        return ImageRegion(
+            x = (pdfRegion.x * scale).toInt(),
+            y = (pdfRegion.yFromTop * scale).toInt(),
+            width = (pdfRegion.width * scale).toInt(),
+            height = (pdfRegion.height * scale).toInt()
+        )
+    }
+
 }

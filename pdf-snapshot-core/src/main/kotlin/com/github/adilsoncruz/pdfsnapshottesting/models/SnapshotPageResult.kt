@@ -1,7 +1,8 @@
 package com.github.adilsoncruz.pdfsnapshottesting.models
 
 public data class SnapshotPageResult(
-    val pageIndex: Int,
+    //val pageIndex: Int?,
+    val name: String,
     val expected: String,
     val generated: String,
     val diff: String,
