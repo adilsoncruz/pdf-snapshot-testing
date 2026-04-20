@@ -3,6 +3,7 @@ package com.github.adilsoncruz.pdfsnapshottesting
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import java.io.ByteArrayInputStream
 import java.io.File
+import java.util.Base64
 
 internal object AllureSnapshotAttachmentPublisher {
     private const val ALLURE_CLASS = "io.qameta.allure.Allure"
@@ -29,22 +30,22 @@ internal object AllureSnapshotAttachmentPublisher {
 
         report.results.forEach { page ->
             attachedCount +=
-                attachFileIfExists(
+                attachContentIfPresent(
                     addAttachmentMethod = addAttachmentMethod,
                     attachmentName = "${page.name} - expected",
-                    filePath = page.expected,
+                    content = page.expected,
                 )
             attachedCount +=
-                attachFileIfExists(
+                attachContentIfPresent(
                     addAttachmentMethod = addAttachmentMethod,
                     attachmentName = "${page.name} - generated",
-                    filePath = page.generated,
+                    content = page.generated,
                 )
             attachedCount +=
-                attachFileIfExists(
+                attachContentIfPresent(
                     addAttachmentMethod = addAttachmentMethod,
                     attachmentName = "${page.name} - diff",
-                    filePath = page.diff,
+                    content = page.diff,
                 )
 
             val summary =
@@ -71,27 +72,46 @@ internal object AllureSnapshotAttachmentPublisher {
         return attachedCount
     }
 
-    private fun attachFileIfExists(
+    private fun attachContentIfPresent(
         addAttachmentMethod: java.lang.reflect.Method,
         attachmentName: String,
-        filePath: String,
+        content: String,
     ): Int {
-        val file = File(filePath)
-        if (!file.exists() || !file.isFile) return 0
+        if (content.isBlank()) return 0
 
-        val extension = file.extension.ifBlank { "bin" }
-        val mimeType = if (extension.equals("png", ignoreCase = true)) "image/png" else "application/octet-stream"
+        val file = File(content)
+        if (file.exists() && file.isFile) {
+            val extension = file.extension.ifBlank { "bin" }
+            val mimeType = if (extension.equals("png", ignoreCase = true)) "image/png" else "application/octet-stream"
 
+            return runCatching {
+                addAttachmentMethod.invoke(
+                    null,
+                    attachmentName,
+                    mimeType,
+                    ByteArrayInputStream(file.readBytes()),
+                    extension,
+                )
+                1
+            }.getOrDefault(0)
+        }
+
+        val bytes = decodeBase64(content) ?: return 0
         return runCatching {
             addAttachmentMethod.invoke(
                 null,
                 attachmentName,
-                mimeType,
-                ByteArrayInputStream(file.readBytes()),
-                extension,
+                "image/png",
+                ByteArrayInputStream(bytes),
+                "png",
             )
             1
         }.getOrDefault(0)
+    }
+
+    private fun decodeBase64(content: String): ByteArray? {
+        val payload = content.substringAfter("base64,", content)
+        return runCatching { Base64.getDecoder().decode(payload) }.getOrNull()
     }
 
     private fun loadAllureClass(): Class<*>? =

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.io.File
+import java.util.Base64
 
 class AllureSnapshotAttachmentPublisherUnitTest {
     @BeforeEach
@@ -15,10 +16,8 @@ class AllureSnapshotAttachmentPublisherUnitTest {
     }
 
     @Test
-    fun `should publish expected generated diff and summary for each snapshot page`() {
-        val expected = tempPng("expected")
-        val generated = tempPng("generated")
-        val diff = tempPng("diff")
+    fun `should publish base64 expected generated diff and summary for each snapshot page`() {
+        val pngBase64 = Base64.getEncoder().encodeToString(byteArrayOf(1, 2, 3, 4))
 
         val report =
             SnapshotReport(
@@ -28,11 +27,42 @@ class AllureSnapshotAttachmentPublisherUnitTest {
                     listOf(
                         SnapshotPageResult(
                             name = "invoice-page-1",
-                            expected = expected.absolutePath,
-                            generated = generated.absolutePath,
-                            diff = diff.absolutePath,
+                            expected = pngBase64,
+                            generated = pngBase64,
+                            diff = pngBase64,
                             matches = false,
                             differenceRatio = 0.12f,
+                            tolerancePercentage = 0.01f,
+                        ),
+                    ),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        val attachedCount = AllureSnapshotAttachmentPublisher.publish(report, enabled = true)
+
+        assertEquals(4, attachedCount)
+        assertEquals(4, Allure.attachments().size)
+        assertEquals("png", Allure.attachments()[0].extension)
+    }
+
+    @Test
+    fun `should support file paths as attachment sources`() {
+        val png = tempPng("expected")
+
+        val report =
+            SnapshotReport(
+                testName = "test",
+                className = "AnyTest",
+                results =
+                    listOf(
+                        SnapshotPageResult(
+                            name = "invoice-page-1",
+                            expected = png.absolutePath,
+                            generated = png.absolutePath,
+                            diff = png.absolutePath,
+                            matches = true,
+                            differenceRatio = 0f,
                             tolerancePercentage = 0.01f,
                         ),
                     ),
