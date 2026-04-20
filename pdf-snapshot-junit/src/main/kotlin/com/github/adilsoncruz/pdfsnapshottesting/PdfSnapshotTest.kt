@@ -80,6 +80,8 @@ public class PdfSnapshotTest(
       }
     }
 
+    AllureSnapshotAttachmentPublisher.publish(report, config.enableAllureAttachments)
+
     val dynamicTest = report.results.map { result: SnapshotPageResult ->
       DynamicTest.dynamicTest(result.name) {
         if(result.matches) Unit else  { error("Snapshot '${result.name}' does not match. ")}

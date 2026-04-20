@@ -11,4 +11,5 @@ public data class SnapshotConfig(
     val snapshotsResultDir: String = "build/pdf-snapshots",
     val writeActualOnFailure: Boolean = false,
     val structureThreshold: Float = 0.02f,
+    val enableAllureAttachments: Boolean = false,
 )
