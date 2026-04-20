@@ -63,9 +63,7 @@ public class PdfSnapshotTest(
       expectedPdf = expectedPdf,
       pdfBytes = pdfBytes,
       pageIndex = pageIndex,
-      requests = regions,
-      drawOverlay = drawOverlay,
-      overlayName = overlayName
+      requests = regions
     )
   }
 
@@ -84,7 +82,6 @@ public class PdfSnapshotTest(
       }
     }
 
-    //report.assertAll()
     return dynamicTest
   }
 }
