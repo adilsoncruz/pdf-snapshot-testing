@@ -4,10 +4,9 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.BoundingBox
 import com.github.adilsoncruz.pdfsnapshottesting.models.ImageRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotPageResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -48,8 +47,8 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should identify failures in snapshot report`() {
-        val passing = SnapshotPageResult(0, "e", "g", "d", true, 0f, 0.01f)
-        val failing = SnapshotPageResult(1, "e", "g", "d", false, 0.2f, 0.01f)
+        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
+        val failing = SnapshotResult(1, "e", "g", "d", false, 0.2f, 0.01f)
 
         val report = SnapshotReport(results = listOf(passing, failing), expectedPageSize = 2, generatedPageSize = 2)
 
@@ -59,7 +58,7 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should pass assertAll when all pages match`() {
-        val passing = SnapshotPageResult(0, "e", "g", "d", true, 0f, 0.01f)
+        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
         val report = SnapshotReport(results = listOf(passing), expectedPageSize = 1, generatedPageSize = 1)
 
         report.assertAll()
