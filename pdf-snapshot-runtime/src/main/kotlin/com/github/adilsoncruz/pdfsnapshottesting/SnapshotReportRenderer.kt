@@ -45,6 +45,7 @@ public class SnapshotReportRenderer {
         report.results.mapIndexed { index, result: SnapshotPageResult ->
             pages.add(
                 template
+                    .replace("{{color}}", PASSED.takeIf { result.matches } ?:  FAILED)
                     .replace("{{page}}", result.name)
                     .replace("{{expected}}", result.expected)
                     .replace("{{diff}}", result.diff)
