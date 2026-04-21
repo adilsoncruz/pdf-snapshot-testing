@@ -13,13 +13,11 @@ import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
-import java.io.File
 import java.nio.file.Path
 
 class ModelAndAssertionUnitTest {
@@ -56,8 +54,8 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should identify failures in snapshot report`() {
-        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
-        val failing = SnapshotResult(1, "e", "g", "d", false, 0.2f, 0.01f)
+        val passing = SnapshotResult("page-1", "e", "g", "d", true, 0f, 0.01f)
+        val failing = SnapshotResult("page-2", "e", "g", "d", false, 0.2f, 0.01f)
 
         val report = SnapshotReport(results = listOf(passing, failing), expectedPageSize = 2, generatedPageSize = 2)
 
@@ -67,25 +65,11 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should pass assertAll when all pages match`() {
-        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
+        val passing = SnapshotResult("page-1", "e", "g", "d", true, 0f, 0.01f)
         val report = SnapshotReport(results = listOf(passing), expectedPageSize = 1, generatedPageSize = 1)
 
         report.assertAll()
         assertFalse(report.hasFailures)
-    }
-
-    @Test
-    fun `should keep snapshot result subtype contracts`() {
-        val region = PdfRegion(1f, 2f, 3f, 4f)
-        val success = SnapshotResult.Success("name", region, matches = true)
-        val created = SnapshotResult.Created("name", File("snapshot.pdf"), region)
-        val firstCreate = SnapshotResult.FirstCreate("name", region)
-        val mismatch = SnapshotResult.Mismatch("name", File("expected.pdf"), region, matches = false)
-
-        assertTrue(success.matches)
-        assertNull(created.matches)
-        assertNull(firstCreate.matches)
-        assertFalse(mismatch.matches)
     }
 
     @Test
