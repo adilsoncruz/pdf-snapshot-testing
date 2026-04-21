@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
@@ -88,7 +89,8 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    fun `engine should compare a requested region`() {
+    @DisplayName("engine should compare a requested region")
+    fun engineShouldCompareARequestedRegion() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
         val baseline = generatePdf("full page region")
@@ -114,7 +116,8 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    fun `engine should require at least one snapshot request for region mode`() {
+    @DisplayName("engine should require at least one snapshot request for region mode")
+    fun engineShouldRequireAtLeastOneSnapshotRequestForRegionMode() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
         val pdf = generatePdf("region validation")
@@ -128,7 +131,8 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    fun `engine should create baseline in region mode when expected file is missing`() {
+    @DisplayName("engine should create baseline in region mode when expected file is missing")
+    fun engineShouldCreateBaselineInRegionModeWhenExpectedFileIsMissing() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
         val pdf = generatePdf("region baseline")
