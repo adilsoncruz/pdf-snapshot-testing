@@ -98,3 +98,15 @@ tasks.register("coverage") {
     description = "Runs tests and validates JaCoCo coverage in all subprojects."
     dependsOn(subprojects.flatMap { listOf("${it.path}:test", "${it.path}:jacocoTestReport", "${it.path}:jacocoTestCoverageVerification") })
 }
+
+tasks.register("coverageCore") {
+    group = "verification"
+    description = "Runs tests and validates JaCoCo coverage for :pdf-snapshot-core only."
+    dependsOn(
+        listOf(
+            ":pdf-snapshot-core:test",
+            ":pdf-snapshot-core:jacocoTestReport",
+            ":pdf-snapshot-core:jacocoTestCoverageVerification",
+        ),
+    )
+}
