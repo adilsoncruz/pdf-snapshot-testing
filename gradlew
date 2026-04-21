@@ -126,10 +126,18 @@ if [ -n "$JAVA_HOME" ] ; then
         JAVACMD=$JAVA_HOME/bin/java
     fi
     if [ ! -x "$JAVACMD" ] ; then
-        die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
+        if "$darwin" && [ -x /usr/libexec/java_home ] ; then
+            JAVA_HOME="$(/usr/libexec/java_home 2>/dev/null || true)"
+            if [ -n "$JAVA_HOME" ] ; then
+                JAVACMD=$JAVA_HOME/bin/java
+            fi
+        fi
+        if [ ! -x "$JAVACMD" ] ; then
+            die "ERROR: JAVA_HOME is set to an invalid directory: $JAVA_HOME
 
 Please set the JAVA_HOME variable in your environment to match the
 location of your Java installation."
+        fi
     fi
 else
     JAVACMD=java
