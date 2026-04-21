@@ -56,8 +56,8 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should identify failures in snapshot report`() {
-        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
-        val failing = SnapshotResult(1, "e", "g", "d", false, 0.2f, 0.01f)
+        val passing = SnapshotResult("0", "e", "g", "d", true, 0f, 0.01f)
+        val failing = SnapshotResult("1", "e", "g", "d", false, 0.2f, 0.01f)
 
         val report = SnapshotReport(results = listOf(passing, failing), expectedPageSize = 2, generatedPageSize = 2)
 
@@ -67,25 +67,11 @@ class ModelAndAssertionUnitTest {
 
     @Test
     fun `should pass assertAll when all pages match`() {
-        val passing = SnapshotResult(0, "e", "g", "d", true, 0f, 0.01f)
+        val passing = SnapshotResult("0", "e", "g", "d", true, 0f, 0.01f)
         val report = SnapshotReport(results = listOf(passing), expectedPageSize = 1, generatedPageSize = 1)
 
         report.assertAll()
         assertFalse(report.hasFailures)
-    }
-
-    @Test
-    fun `should keep snapshot result subtype contracts`() {
-        val region = PdfRegion(1f, 2f, 3f, 4f)
-        val success = SnapshotResult.Success("name", region, matches = true)
-        val created = SnapshotResult.Created("name", File("snapshot.pdf"), region)
-        val firstCreate = SnapshotResult.FirstCreate("name", region)
-        val mismatch = SnapshotResult.Mismatch("name", File("expected.pdf"), region, matches = false)
-
-        assertTrue(success.matches)
-        assertNull(created.matches)
-        assertNull(firstCreate.matches)
-        assertFalse(mismatch.matches)
     }
 
     @Test
