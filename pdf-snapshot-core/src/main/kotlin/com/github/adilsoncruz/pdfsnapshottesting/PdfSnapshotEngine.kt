@@ -128,19 +128,6 @@ public class PdfSnapshotEngine(
 
     private fun expectedFile(name: String): File = File(config.snapshotsDir, name)
 
-    private fun deepCopy(original: BufferedImage): BufferedImage {
-        val copy =
-            BufferedImage(
-                original.width,
-                original.height,
-                BufferedImage.TYPE_INT_ARGB,
-            )
-        val g = copy.createGraphics()
-        g.drawImage(original, 0, 0, null)
-        g.dispose()
-        return copy
-    }
-
     private fun BufferedImage.toBase64(): String {
         val outputStream = ByteArrayOutputStream()
         ImageIO.write(this, "png", outputStream)
