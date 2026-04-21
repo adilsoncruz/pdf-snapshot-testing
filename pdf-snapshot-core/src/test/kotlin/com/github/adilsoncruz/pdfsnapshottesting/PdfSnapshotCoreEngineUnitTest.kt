@@ -12,7 +12,7 @@ import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.nio.file.Path
 
-class PdfSnapshotCoreIntegrationTest {
+class PdfSnapshotCoreEngineUnitTest {
     @TempDir
     lateinit var tempDir: Path
 
