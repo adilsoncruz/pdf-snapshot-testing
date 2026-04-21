@@ -8,15 +8,24 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
+import com.lowagie.text.Document
+import com.lowagie.text.Paragraph
+import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertNull
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.io.TempDir
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.nio.file.Path
 
 class ModelAndAssertionUnitTest {
+    @TempDir
+    lateinit var tempDir: Path
+
     @Test
     fun `should expose default snapshot config values`() {
         val config = SnapshotConfig()
@@ -77,5 +86,45 @@ class ModelAndAssertionUnitTest {
         assertNull(created.matches)
         assertNull(firstCreate.matches)
         assertFalse(mismatch.matches)
+    }
+
+    @Test
+    fun `should execute AssertPdfBySnapshot through engine`() {
+        val engine =
+            PdfSnapshotEngine(
+                SnapshotConfig(
+                    snapshotsDir = tempDir.toString(),
+                    tolerancePercent = 0f,
+                    dpi = 72f,
+                ),
+            )
+        val expectedName = "assert-from-model-test.pdf"
+        val pdfBytes = generatePdf("assert-content")
+
+        engine.run(expectedName, pdfBytes)
+
+        val report = AssertPdfBySnapshot(expectedName, pdfBytes, engine).execute()
+
+        assertFalse(report.hasFailures)
+        assertEquals(1, report.results.size)
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+    }
+
+    private fun generatePdf(vararg lines: String): ByteArray {
+        val out = ByteArrayOutputStream()
+        val document = Document()
+        PdfWriter.getInstance(document, out)
+
+        document.open()
+        lines.forEachIndexed { index, line ->
+            if (index > 0) {
+                document.newPage()
+            }
+            document.add(Paragraph(line))
+        }
+        document.close()
+
+        return out.toByteArray()
     }
 }
