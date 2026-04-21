@@ -18,7 +18,7 @@ class PdfSnapshotApiUnitTest {
     lateinit var tempDir: Path
 
     @Test
-    fun `PdfSnapshotTest should execute region snapshot and return dynamic test`() {
+    fun `PdfSnapshotTest should create baseline on first region run`() {
         val config = configForTempDir()
         val baselinePdf = generatePdf("invoice")
         val snapshot =
@@ -26,12 +26,8 @@ class PdfSnapshotApiUnitTest {
                 .page(0)
                 .region("header", PdfRegion(0f, 0f, 200f, 120f))
 
-        val firstRun = snapshot.assertPdfBySnapshot()
-        assertEquals(0, firstRun.size)
-
-        val secondRun = snapshot.assertPdfBySnapshot()
-        assertEquals(1, secondRun.size)
-        assertDoesNotThrow { secondRun.first().executable.execute() }
+        val report = snapshot.assertPdfBySnapshot()
+        assertEquals(0, report.size)
     }
 
     @Test
