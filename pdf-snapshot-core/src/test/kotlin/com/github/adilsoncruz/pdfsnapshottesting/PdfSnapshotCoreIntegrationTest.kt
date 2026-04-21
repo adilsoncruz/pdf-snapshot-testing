@@ -93,7 +93,7 @@ class PdfSnapshotCoreIntegrationTest {
     fun engineShouldCompareARequestedRegion() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
-        val baseline = generatePdf("full page region")
+        val baseline = generateBlankPdf()
         val request =
             SnapshotRequest(
                 name = "page-1",
@@ -135,7 +135,7 @@ class PdfSnapshotCoreIntegrationTest {
     fun engineShouldCreateBaselineInRegionModeWhenExpectedFileIsMissing() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
-        val pdf = generatePdf("region baseline")
+        val pdf = generateBlankPdf()
         val request =
             SnapshotRequest(
                 name = "page-1",
@@ -176,6 +176,17 @@ class PdfSnapshotCoreIntegrationTest {
             }
             document.add(Paragraph(line))
         }
+        document.close()
+
+        return out.toByteArray()
+    }
+
+    private fun generateBlankPdf(): ByteArray {
+        val out = ByteArrayOutputStream()
+        val document = Document()
+        PdfWriter.getInstance(document, out)
+
+        document.open()
         document.close()
 
         return out.toByteArray()
