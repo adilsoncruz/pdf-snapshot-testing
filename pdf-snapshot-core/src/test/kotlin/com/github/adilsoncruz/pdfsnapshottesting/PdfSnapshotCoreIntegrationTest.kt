@@ -10,7 +10,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
@@ -89,11 +88,10 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    @DisplayName("engine should compare a requested region")
-    fun engineShouldCompareARequestedRegion() {
+    fun `engine should compare a requested region`() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
-        val baseline = generateBlankPdf()
+        val baseline = generatePdf("region baseline")
         val request =
             SnapshotRequest(
                 name = "page-1",
@@ -116,8 +114,7 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    @DisplayName("engine should require at least one snapshot request for region mode")
-    fun engineShouldRequireAtLeastOneSnapshotRequestForRegionMode() {
+    fun `engine should require at least one snapshot request for region mode`() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
         val pdf = generatePdf("region validation")
@@ -131,11 +128,10 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    @DisplayName("engine should create baseline in region mode when expected file is missing")
-    fun engineShouldCreateBaselineInRegionModeWhenExpectedFileIsMissing() {
+    fun `engine should create baseline in region mode when expected file is missing`() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
-        val pdf = generateBlankPdf()
+        val pdf = generatePdf("new baseline")
         val request =
             SnapshotRequest(
                 name = "page-1",
@@ -181,14 +177,4 @@ class PdfSnapshotCoreIntegrationTest {
         return out.toByteArray()
     }
 
-    private fun generateBlankPdf(): ByteArray {
-        val out = ByteArrayOutputStream()
-        val document = Document()
-        PdfWriter.getInstance(document, out)
-
-        document.open()
-        document.close()
-
-        return out.toByteArray()
-    }
 }
