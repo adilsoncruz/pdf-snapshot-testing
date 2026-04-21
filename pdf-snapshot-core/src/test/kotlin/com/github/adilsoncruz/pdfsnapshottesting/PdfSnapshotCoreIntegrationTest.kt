@@ -123,6 +123,26 @@ class PdfSnapshotCoreIntegrationTest {
         assertEquals("No snapshot regions defined", error.message)
     }
 
+    @Test
+    fun `engine should create baseline in region mode when expected file is missing`() {
+        val config = configForTempDir()
+        val engine = PdfSnapshotEngine(config)
+        val pdf = generatePdf("region baseline")
+        val request =
+            SnapshotRequest(
+                name = "page-1",
+                region = PdfRegion.fullPage(PageSize.A4.width, PageSize.A4.height),
+            )
+
+        val report = engine.run("region-baseline.pdf", pdf, pageIndex = 0, requests = listOf(request))
+
+        assertEquals(0, report.results.size)
+        assertFalse(report.hasFailures)
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+        assertTrue(tempDir.resolve("region-baseline.pdf").toFile().exists())
+    }
+
     private fun configForTempDir(): SnapshotConfig {
         return SnapshotConfig(
             snapshotsDir = tempDir.toString(),
