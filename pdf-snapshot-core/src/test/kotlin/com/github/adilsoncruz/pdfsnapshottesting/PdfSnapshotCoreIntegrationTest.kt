@@ -4,7 +4,6 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import com.lowagie.text.Document
-import com.lowagie.text.PageSize
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -89,14 +88,19 @@ class PdfSnapshotCoreIntegrationTest {
     }
 
     @Test
-    fun `engine should compare a requested full-page region`() {
+    fun `engine should compare a requested region`() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
         val baseline = generatePdf("full page region")
         val request =
             SnapshotRequest(
                 name = "page-1",
-                region = PdfRegion.fullPage(PageSize.A4.width, PageSize.A4.height),
+                region = PdfRegion(
+                    x = 0f,
+                    yFromTop = 0f,
+                    width = 200f,
+                    height = 200f,
+                ),
             )
 
         engine.run("region.pdf", baseline)
@@ -131,7 +135,12 @@ class PdfSnapshotCoreIntegrationTest {
         val request =
             SnapshotRequest(
                 name = "page-1",
-                region = PdfRegion.fullPage(PageSize.A4.width, PageSize.A4.height),
+                region = PdfRegion(
+                    x = 0f,
+                    yFromTop = 0f,
+                    width = 200f,
+                    height = 200f,
+                ),
             )
 
         val report = engine.run("region-baseline.pdf", pdf, pageIndex = 0, requests = listOf(request))
