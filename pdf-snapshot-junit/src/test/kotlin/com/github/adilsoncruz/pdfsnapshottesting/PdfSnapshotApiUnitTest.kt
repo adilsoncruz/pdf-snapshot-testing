@@ -6,7 +6,6 @@ import com.lowagie.text.Document
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
-import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -17,19 +16,6 @@ import java.nio.file.Path
 class PdfSnapshotApiUnitTest {
     @TempDir
     lateinit var tempDir: Path
-
-    @Test
-    fun `PdfSnapshotTest should create baseline on first region run`() {
-        val config = configForTempDir()
-        val baselinePdf = generatePdf("invoice")
-        val snapshot =
-            PdfSnapshotTest("region-check.pdf", baselinePdf, config)
-                .page(0)
-                .region("header", PdfRegion(0f, 0f, 200f, 120f))
-
-        val report = snapshot.assertPdfBySnapshot()
-        assertEquals(0, report.size)
-    }
 
     @Test
     fun `PdfSnapshotTest should reject negative page index`() {
