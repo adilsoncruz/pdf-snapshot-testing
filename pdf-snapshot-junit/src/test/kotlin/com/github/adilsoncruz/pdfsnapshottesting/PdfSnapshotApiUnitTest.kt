@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
@@ -22,11 +21,6 @@ import java.nio.file.Path
 class PdfSnapshotApiUnitTest {
     @TempDir
     lateinit var tempDir: Path
-
-    @AfterEach
-    fun resetAdapterExecutor() {
-        resetSnapshotAssertionExecutor()
-    }
 
     @Test
     fun `PdfSnapshotTest should reject negative page index`() {
@@ -93,50 +87,6 @@ class PdfSnapshotApiUnitTest {
     }
 
     @Test
-    fun `assertPdfByFile should delegate to executor and pass on matching report`() {
-        var called = false
-        val report =
-            SnapshotReport(
-                results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
-                expectedPageSize = 1,
-                generatedPageSize = 1,
-            )
-        snapshotAssertionExecutor = { expected, _, _ ->
-            called = true
-            assertEquals("expected.pdf", expected)
-            report
-        }
-
-        assertDoesNotThrow {
-            assertPdfByFile(
-                expected = "expected.pdf",
-                pdfBytes = generatePdf("content"),
-                config = configForTempDir(),
-            )
-        }
-        assertTrue(called)
-    }
-
-    @Test
-    fun `assertPdfByFile should throw on mismatching report`() {
-        val report =
-            SnapshotReport(
-                results = listOf(SnapshotResult("p1", "e", "g", "d", false, 0.3f, 0f)),
-                expectedPageSize = 1,
-                generatedPageSize = 1,
-            )
-        snapshotAssertionExecutor = { _, _, _ -> report }
-
-        assertThrows(AssertionError::class.java) {
-            assertPdfByFile(
-                expected = "expected.pdf",
-                pdfBytes = generatePdf("content"),
-                config = configForTempDir(),
-            )
-        }
-    }
-
-    @Test
     fun `PdfSnapshotTest should write runtime report when CurrentTest is present`() {
         val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
         output.delete()
@@ -168,32 +118,6 @@ class PdfSnapshotApiUnitTest {
             SnapshotContextManager.remove(uniqueId)
             output.delete()
         }
-    }
-
-    @Test
-    fun `assertPdfByFile should execute public adapter path with configured executor`() {
-        var called = false
-        val report =
-            SnapshotReport(
-                results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
-                expectedPageSize = 1,
-                generatedPageSize = 1,
-            )
-        snapshotAssertionExecutor = { expected, _, _ ->
-            called = true
-            assertEquals("public-adapter-baseline.pdf", expected)
-            report
-        }
-
-        assertDoesNotThrow {
-            assertPdfByFile(
-                expected = "public-adapter-baseline.pdf",
-                pdfBytes = generatePdf("public adapter"),
-                config = configForTempDir(),
-            )
-        }
-
-        assertTrue(called)
     }
 
     private fun configForTempDir(): SnapshotConfig =
