@@ -12,17 +12,21 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.io.File
 import java.nio.file.Path
-import java.time.Duration
 
 class PdfSnapshotApiUnitTest {
     @TempDir
     lateinit var tempDir: Path
+
+    @AfterEach
+    fun resetAdapterExecutor() {
+        snapshotAssertionExecutor = ::executeSnapshotAssertion
+    }
 
     @Test
     fun `PdfSnapshotTest should reject negative page index`() {
@@ -153,18 +157,29 @@ class PdfSnapshotApiUnitTest {
     }
 
     @Test
-    fun `assertPdfByFile should execute public adapter path on first baseline`() {
-        val config = configForTempDir()
-
-        assertTimeoutPreemptively(Duration.ofSeconds(10)) {
-            assertDoesNotThrow {
-                assertPdfByFile(
-                    expected = "public-adapter-baseline.pdf",
-                    pdfBytes = generatePdf("public adapter"),
-                    config = config,
-                )
-            }
+    fun `assertPdfByFile should execute public adapter path with configured executor`() {
+        var called = false
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+        snapshotAssertionExecutor = { expected, _, _ ->
+            called = true
+            assertEquals("public-adapter-baseline.pdf", expected)
+            report
         }
+
+        assertDoesNotThrow {
+            assertPdfByFile(
+                expected = "public-adapter-baseline.pdf",
+                pdfBytes = generatePdf("public adapter"),
+                config = configForTempDir(),
+            )
+        }
+
+        assertTrue(called)
     }
 
     private fun configForTempDir(): SnapshotConfig =

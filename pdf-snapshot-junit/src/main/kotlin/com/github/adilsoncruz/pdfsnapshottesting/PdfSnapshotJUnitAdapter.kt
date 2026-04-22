@@ -4,12 +4,15 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 
+internal var snapshotAssertionExecutor: (expected: String, pdfBytes: ByteArray, config: SnapshotConfig) -> SnapshotReport =
+    ::executeSnapshotAssertion
+
 public fun assertPdfByFile(
     expected: String,
     pdfBytes: ByteArray,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    assertPdfByFile(expected, pdfBytes, config, ::executeSnapshotAssertion)
+    assertPdfByFile(expected, pdfBytes, config, snapshotAssertionExecutor)
 }
 
 internal fun assertPdfByFile(
