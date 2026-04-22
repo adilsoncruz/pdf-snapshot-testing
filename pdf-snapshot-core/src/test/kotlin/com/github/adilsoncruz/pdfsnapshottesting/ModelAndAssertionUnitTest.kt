@@ -68,4 +68,19 @@ class ModelAndAssertionUnitTest {
         assertFalse(report.hasFailures)
     }
 
+    @Test
+    fun `should cover AssertPdfBySnapshot execute call`() {
+        val engine =
+            PdfSnapshotEngine(
+                SnapshotConfig(
+                    snapshotsDir = tempDir.toString(),
+                    tolerancePercent = 0f,
+                    dpi = 72f,
+                ),
+            )
+        val assertion = AssertPdfBySnapshot("invalid.pdf", byteArrayOf(1, 2, 3), engine)
+
+        assertThrows(Exception::class.java) { assertion.execute() }
+    }
+
 }
