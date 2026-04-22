@@ -87,6 +87,66 @@ class PdfSnapshotApiUnitTest {
     }
 
     @Test
+    fun `assertPdfByFile should fail fast for invalid pdf bytes`() {
+        assertThrows(Exception::class.java) {
+            assertPdfByFile(
+                expected = "invalid.pdf",
+                pdfBytes = byteArrayOf(1, 2, 3, 4),
+                config = configForTempDir(),
+            )
+        }
+    }
+
+    @Test
+    fun `finalizeSnapshotReport should assert report without runtime context`() {
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        assertDoesNotThrow { finalizeSnapshotReport(report) }
+    }
+
+    @Test
+    fun `finalizeSnapshotReport should throw for mismatching report`() {
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("p1", "e", "g", "d", false, 0.3f, 0f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        assertThrows(AssertionError::class.java) { finalizeSnapshotReport(report) }
+    }
+
+    @Test
+    fun `finalizeSnapshotReport should write runtime report when CurrentTest is present`() {
+        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
+        output.delete()
+
+        val uniqueId = "uid-finalize-report"
+        CurrentTest.set(uniqueId)
+        SnapshotContextManager.put(uniqueId, SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId))
+
+        try {
+            val report =
+                SnapshotReport(
+                    results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
+                    expectedPageSize = 1,
+                    generatedPageSize = 1,
+                )
+            finalizeSnapshotReport(report)
+            assertTrue(output.exists())
+        } finally {
+            CurrentTest.clear()
+            SnapshotContextManager.remove(uniqueId)
+            output.delete()
+        }
+    }
+
+    @Test
     fun `PdfSnapshotTest should write runtime report when CurrentTest is present`() {
         val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
         output.delete()
