@@ -37,8 +37,4 @@ internal fun assertPdfByFile(
 }
 
 private fun executeSnapshotAssertion(expected: String, pdfBytes: ByteArray, config: SnapshotConfig): SnapshotReport =
-    AssertPdfBySnapshot(
-        expectedPdf = expected,
-        pdfBytes = pdfBytes,
-        engine = PdfSnapshotEngine(config),
-    ).execute()
+    AssertPdfBySnapshot(expectedPdf = expected, pdfBytes = pdfBytes, engine = PdfSnapshotEngine(config)).execute()

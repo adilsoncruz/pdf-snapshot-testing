@@ -55,6 +55,15 @@ class PdfSnapshotApiUnitTest {
     }
 
     @Test
+    fun `PdfSnapshotTest should keep fluent api when drawing overlay without name`() {
+        val snapshot = PdfSnapshotTest("fluent-overlay-default.pdf", generatePdf("invoice"), configForTempDir())
+
+        val sameAfterOverlay = snapshot.drawRegionOverlay()
+
+        assertSame(snapshot, sameAfterOverlay)
+    }
+
+    @Test
     fun `PdfSnapshotTest should create dynamic tests from runner results`() {
         val report =
             SnapshotReport(

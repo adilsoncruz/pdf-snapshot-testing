@@ -99,12 +99,7 @@ public class PdfSnapshotTest(
   private companion object {
     fun defaultSnapshotRunner(): SnapshotRunner =
       SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config ->
-        PdfSnapshotEngine(config).run(
-          expectedPdf = expectedPdf,
-          pdfBytes = pdfBytes,
-          pageIndex = pageIndex,
-          requests = requests,
-        )
+        PdfSnapshotEngine(config).run(expectedPdf, pdfBytes, pageIndex, requests)
       }
   }
 }
