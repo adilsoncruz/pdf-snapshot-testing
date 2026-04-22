@@ -1,7 +1,5 @@
 # PDF Snapshot Testing (JVM)
 
-[![PR Validation](https://img.shields.io/github/actions/workflow/status/adilsoncruz/pdf-snapshot-testing/pr-validation.yml?branch=main&label=PR%20Validation)](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/pr-validation.yml)
-[![Publish GitHub Packages](https://img.shields.io/github/actions/workflow/status/adilsoncruz/pdf-snapshot-testing/publish-github-packages.yml?branch=main&label=Publish%20GitHub%20Packages)](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/publish-github-packages.yml)
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)
 ![JVM](https://img.shields.io/badge/JVM-17%2F21-ED8B00?logo=openjdk&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-8.10-02303A?logo=gradle&logoColor=white)
@@ -158,6 +156,27 @@ class InvoiceSnapshotSuite {
         // call assertPdfByFile(...) or PdfSnapshotTest(...)
     }
 }
+```
+
+## Snapshot report output
+
+When `@EnablePdfSnapshots` is active, test executions generate runtime snapshot artifacts and consolidate them into an HTML report at the end of the test session.
+
+- Default report location: `build/pdf-snapshots/index.html`
+- Raw intermediate files are processed and cleaned after report generation
+
+Use this report to inspect:
+
+- per-test snapshot results
+- expected vs generated images
+- diff output for failures
+
+You can open it locally after running tests:
+
+```bash
+open build/pdf-snapshots/index.html
+# or on Linux
+xdg-open build/pdf-snapshots/index.html
 ```
 
 ---
