@@ -65,6 +65,49 @@ class PdfSnapshotCoreEngineUnitTest {
         assertTrue(resultClass.getDeclaredField("matches").apply { isAccessible = true }.get(result) as Boolean)
     }
 
+    @Test
+    fun `engine should build page comparison report when generated has more pages`() {
+        val engine = engine()
+        val report = engine.buildPageComparisonReport(
+            pages = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
+            expectedSnapshots = listOf(solidImage(Color.WHITE)),
+        )
+
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(2, report.generatedPageSize)
+        assertEquals(2, report.results.size)
+        assertTrue(report.hasFailures)
+    }
+
+    @Test
+    fun `engine should build page comparison report when expected has more pages`() {
+        val engine = engine()
+        val report = engine.buildPageComparisonReport(
+            pages = listOf(solidImage(Color.WHITE)),
+            expectedSnapshots = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
+        )
+
+        assertEquals(2, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+        assertEquals(2, report.results.size)
+        assertTrue(report.hasFailures)
+    }
+
+    @Test
+    fun `engine should build region comparison results for requests`() {
+        val engine = engine()
+        val results =
+            engine.buildRegionComparisonResults(
+                expectedImage = solidImage(Color.WHITE),
+                pageImage = solidImage(Color.WHITE),
+                requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 16f, 16f))),
+            )
+
+        assertEquals(1, results.size)
+        assertEquals("header", results.first().name)
+        assertTrue(results.first().matches)
+    }
+
     private fun engine(): PdfSnapshotEngine =
         PdfSnapshotEngine(
             SnapshotConfig(
