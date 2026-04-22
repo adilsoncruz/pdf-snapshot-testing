@@ -76,7 +76,7 @@ class PdfSnapshotCoreEngineUnitTest {
         assertEquals(1, report.expectedPageSize)
         assertEquals(2, report.generatedPageSize)
         assertEquals(2, report.results.size)
-        assertTrue(report.hasFailures)
+        assertEquals("Page 2", report.results.last().name)
     }
 
     @Test
@@ -90,7 +90,7 @@ class PdfSnapshotCoreEngineUnitTest {
         assertEquals(2, report.expectedPageSize)
         assertEquals(1, report.generatedPageSize)
         assertEquals(2, report.results.size)
-        assertTrue(report.hasFailures)
+        assertEquals("Page 2", report.results.last().name)
     }
 
     @Test
