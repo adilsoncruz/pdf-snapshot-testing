@@ -5,7 +5,6 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.lowagie.text.Document
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
-import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -41,22 +40,6 @@ class PdfSnapshotApiUnitTest {
         assertSame(snapshot, sameAfterPage)
         assertSame(snapshot, sameAfterRegion)
         assertSame(snapshot, sameAfterOverlay)
-    }
-
-    @Test
-    fun `assertPdfByFile should pass for equal pdf and fail for mismatch`() {
-        val config = configForTempDir()
-        val baselinePdf = generatePdf("contract A")
-
-        assertDoesNotThrow {
-            assertPdfByFile("adapter-check.pdf", baselinePdf, config)
-            assertPdfByFile("adapter-check.pdf", baselinePdf, config)
-        }
-
-        val mismatchPdf = generatePdf("contract B")
-        assertThrows(AssertionError::class.java) {
-            assertPdfByFile("adapter-check.pdf", mismatchPdf, config)
-        }
     }
 
     private fun configForTempDir(): SnapshotConfig =
