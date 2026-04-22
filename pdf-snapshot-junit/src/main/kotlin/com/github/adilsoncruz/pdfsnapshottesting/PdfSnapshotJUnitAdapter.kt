@@ -1,6 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 
 public fun assertPdfByFile(
@@ -8,12 +9,16 @@ public fun assertPdfByFile(
     pdfBytes: ByteArray,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    val report =
-        AssertPdfBySnapshot(
-            expectedPdf = expected,
-            pdfBytes = pdfBytes,
-            engine = PdfSnapshotEngine(config),
-        ).execute()
+    assertPdfByFile(expected, pdfBytes, config, ::executeSnapshotAssertion)
+}
+
+internal fun assertPdfByFile(
+    expected: String,
+    pdfBytes: ByteArray,
+    config: SnapshotConfig,
+    executor: (expected: String, pdfBytes: ByteArray, config: SnapshotConfig) -> SnapshotReport,
+) {
+    val report = executor(expected, pdfBytes, config)
 
     CurrentTest.get().let { uniqueId ->
         if (uniqueId != null) {
@@ -23,3 +28,10 @@ public fun assertPdfByFile(
 
     return report.assertAll()
 }
+
+private fun executeSnapshotAssertion(expected: String, pdfBytes: ByteArray, config: SnapshotConfig): SnapshotReport =
+    AssertPdfBySnapshot(
+        expectedPdf = expected,
+        pdfBytes = pdfBytes,
+        engine = PdfSnapshotEngine(config),
+    ).execute()

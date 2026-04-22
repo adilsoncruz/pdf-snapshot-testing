@@ -11,6 +11,7 @@ public class PdfSnapshotTest(
   private val expectedPdf: String,
   private val pdfBytes: ByteArray,
   private val config: SnapshotConfig = SnapshotConfig(),
+  private val runner: SnapshotRunner = defaultSnapshotRunner(),
 ) {
 
   private var pageIndex: Int = 0
@@ -58,12 +59,12 @@ public class PdfSnapshotTest(
    * This method is framework-agnostic.
    */
   private fun execute(): SnapshotReport {
-    val engine = PdfSnapshotEngine(this.config)
-    return engine.run(
+    return runner.run(
       expectedPdf = expectedPdf,
       pdfBytes = pdfBytes,
       pageIndex = pageIndex,
-      requests = regions
+      requests = regions,
+      config = config,
     )
   }
 
@@ -78,10 +79,32 @@ public class PdfSnapshotTest(
 
     val dynamicTest = report.results.map { result: SnapshotResult ->
       DynamicTest.dynamicTest(result.name) {
-        if(result.matches) Unit else  { error("Snapshot '${result.name}' does not match. ")}
+        if (result.matches) Unit else error("Snapshot '${result.name}' does not match.")
       }
     }
 
     return dynamicTest
+  }
+
+  public fun interface SnapshotRunner {
+    fun run(
+      expectedPdf: String,
+      pdfBytes: ByteArray,
+      pageIndex: Int,
+      requests: List<SnapshotRequest>,
+      config: SnapshotConfig,
+    ): SnapshotReport
+  }
+
+  private companion object {
+    fun defaultSnapshotRunner(): SnapshotRunner =
+      SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config ->
+        PdfSnapshotEngine(config).run(
+          expectedPdf = expectedPdf,
+          pdfBytes = pdfBytes,
+          pageIndex = pageIndex,
+          requests = requests,
+        )
+      }
   }
 }

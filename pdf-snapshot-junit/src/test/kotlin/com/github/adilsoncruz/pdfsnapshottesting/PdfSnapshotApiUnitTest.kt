@@ -2,9 +2,13 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.lowagie.text.Document
 import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
+import org.junit.jupiter.api.Assertions.assertDoesNotThrow
+import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
@@ -40,6 +44,74 @@ class PdfSnapshotApiUnitTest {
         assertSame(snapshot, sameAfterPage)
         assertSame(snapshot, sameAfterRegion)
         assertSame(snapshot, sameAfterOverlay)
+    }
+
+    @Test
+    fun `PdfSnapshotTest should create dynamic tests from runner results`() {
+        val report =
+            SnapshotReport(
+                results =
+                    listOf(
+                        SnapshotResult("ok", "e", "g", "d", true, 0f, 0f),
+                        SnapshotResult("fail", "e", "g", "d", false, 0.2f, 0f),
+                    ),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+        val snapshot =
+            PdfSnapshotTest(
+                expectedPdf = "stub.pdf",
+                pdfBytes = generatePdf("content"),
+                config = configForTempDir(),
+                runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _ -> report },
+            )
+
+        val tests = snapshot.assertPdfBySnapshot().toList()
+
+        assertEquals(2, tests.size)
+        assertEquals("ok", tests[0].displayName)
+        assertEquals("fail", tests[1].displayName)
+        assertDoesNotThrow { tests[0].executable.execute() }
+        assertThrows(IllegalStateException::class.java) { tests[1].executable.execute() }
+    }
+
+    @Test
+    fun `assertPdfByFile should delegate to executor and pass on matching report`() {
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        assertDoesNotThrow {
+            assertPdfByFile(
+                expected = "expected.pdf",
+                pdfBytes = generatePdf("content"),
+                config = configForTempDir(),
+            ) { expected, _, _ ->
+                assertEquals("expected.pdf", expected)
+                report
+            }
+        }
+    }
+
+    @Test
+    fun `assertPdfByFile should throw on mismatching report`() {
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("p1", "e", "g", "d", false, 0.3f, 0f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        assertThrows(AssertionError::class.java) {
+            assertPdfByFile(
+                expected = "expected.pdf",
+                pdfBytes = generatePdf("content"),
+                config = configForTempDir(),
+            ) { _, _, _ -> report }
+        }
     }
 
     private fun configForTempDir(): SnapshotConfig =
