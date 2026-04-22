@@ -18,6 +18,7 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.10.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.10.0")
     testImplementation("org.junit.platform:junit-platform-launcher:1.10.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 
     // Para gerar PDFs de teste
     testImplementation("com.github.librepdf:openpdf:1.3.30")
