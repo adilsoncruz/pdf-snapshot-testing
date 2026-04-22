@@ -7,6 +7,7 @@ import com.lowagie.text.Paragraph
 import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -28,6 +29,32 @@ class PdfSnapshotApiUnitTest {
 
         val report = snapshot.assertPdfBySnapshot()
         assertEquals(0, report.size)
+    }
+
+    @Test
+    fun `PdfSnapshotTest should reject negative page index`() {
+        val config = configForTempDir()
+        val baselinePdf = generatePdf("invoice")
+        val snapshot = PdfSnapshotTest("negative-page.pdf", baselinePdf, config)
+
+        assertThrows(IllegalArgumentException::class.java) {
+            snapshot.page(-1)
+        }
+    }
+
+    @Test
+    fun `PdfSnapshotTest should keep fluent api when adding region and overlay`() {
+        val config = configForTempDir()
+        val baselinePdf = generatePdf("invoice")
+        val snapshot = PdfSnapshotTest("fluent-api.pdf", baselinePdf, config)
+
+        val sameAfterPage = snapshot.page(0)
+        val sameAfterRegion = snapshot.region("header", PdfRegion(0f, 0f, 200f, 120f))
+        val sameAfterOverlay = snapshot.drawRegionOverlay("overlay.png")
+
+        assertSame(snapshot, sameAfterPage)
+        assertSame(snapshot, sameAfterRegion)
+        assertSame(snapshot, sameAfterOverlay)
     }
 
     @Test
