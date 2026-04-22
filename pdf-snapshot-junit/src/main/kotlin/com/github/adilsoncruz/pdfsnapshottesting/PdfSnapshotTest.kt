@@ -71,11 +71,15 @@ public class PdfSnapshotTest(
   public fun assertPdfBySnapshot(): Collection<DynamicTest> {
     val report = this.execute()
 
-    CurrentTest.get().let { uniqueId ->
-      if (uniqueId != null) {
-        SnapshotResultFileWriter.write(SnapshotContextManager.get(uniqueId)!!, report)
-      }
-    }
+    val context =
+      CurrentTest.get()?.let { uniqueId -> SnapshotContextManager.get(uniqueId) }
+        ?: SnapshotExecutionContext(
+          testName = report.testName ?: "snapshot assertion",
+          className = report.className.ifBlank { "StandaloneSnapshotReport" },
+        )
+
+    SnapshotResultFileWriter.write(context, report)
+    generateSnapshotHtmlReport()
 
     val dynamicTest = report.results.map { result: SnapshotResult ->
       DynamicTest.dynamicTest(result.name) {

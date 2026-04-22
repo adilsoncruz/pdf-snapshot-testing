@@ -160,7 +160,8 @@ class InvoiceSnapshotSuite {
 
 ## Snapshot report output
 
-When `@EnablePdfSnapshots` is active, test executions generate runtime snapshot artifacts and consolidate them into an HTML report at the end of the test session.
+Snapshot assertions generate runtime snapshot artifacts and write an HTML report.
+When `@EnablePdfSnapshots` is active, the report is consolidated at the end of the test session.
 
 - Default report location: `build/pdf-snapshots/index.html`
 - Raw intermediate files are processed and cleaned after report generation

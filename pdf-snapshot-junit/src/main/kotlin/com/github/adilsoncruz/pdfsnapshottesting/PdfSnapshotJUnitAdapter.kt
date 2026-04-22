@@ -14,10 +14,14 @@ public fun assertPdfByFile(
 }
 
 internal fun finalizeSnapshotReport(report: SnapshotReport) {
-    CurrentTest.get().let { uniqueId ->
-        if (uniqueId != null) {
-            SnapshotResultFileWriter.write(SnapshotContextManager.get(uniqueId)!!, report)
-        }
-    }
+    val context =
+        CurrentTest.get()?.let { uniqueId -> SnapshotContextManager.get(uniqueId) }
+            ?: SnapshotExecutionContext(
+                testName = report.testName ?: "snapshot assertion",
+                className = report.className.ifBlank { "StandaloneSnapshotReport" },
+            )
+
+    SnapshotResultFileWriter.write(context, report)
+    generateSnapshotHtmlReport()
     report.assertAll()
 }

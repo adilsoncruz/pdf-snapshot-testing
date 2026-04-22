@@ -5,7 +5,6 @@ import org.junit.jupiter.api.extension.AfterEachCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.io.File
 
 public class SnapshotExtension : BeforeEachCallback, AfterEachCallback, BeforeAllCallback {
     public override fun beforeAll(context: ExtensionContext) {
@@ -17,31 +16,9 @@ public class SnapshotExtension : BeforeEachCallback, AfterEachCallback, BeforeAl
 
     public class SnapshotFinalizer : ExtensionContext.Store.CloseableResource {
         override fun close() {
-            val config = SnapshotConfig()
-            val rawDir = File(config.snapshotsResultDir, "raw")
+            val indexFile = generateSnapshotHtmlReport(config = SnapshotConfig(), cleanRawFiles = true)
 
-            val reports =
-                rawDir.listFiles()
-                    ?.map {
-                        SnapshotJsonSerializer.deserialize(it.readText())
-                    }
-                    ?: emptyList()
-
-            if (reports.isNotEmpty()) {
-                val indexFile = File(config.snapshotsResultDir, "index.html")
-                val grouped = reports.groupBy { it.className }
-
-                val renderer = SnapshotReportRenderer()
-
-                val html =
-                    // renderer.generateConsolidatedHtml(
-                    renderer.generateReport(
-                        grouped,
-                    )
-                // val html = renderer.generateBindingBox(grouped)
-
-                indexFile.writeText(html)
-                rawDir.deleteRecursively()
+            if (indexFile != null) {
                 println()
                 println("PDF Snapshot Report:")
                 println("file://${indexFile.absolutePath}")
