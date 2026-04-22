@@ -87,7 +87,7 @@ public class PdfSnapshotTest(
   }
 
   public fun interface SnapshotRunner {
-    fun run(
+    public fun run(
       expectedPdf: String,
       pdfBytes: ByteArray,
       pageIndex: Int,
