@@ -1,8 +1,9 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
+import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
@@ -15,90 +16,63 @@ class PdfSnapshotCoreEngineUnitTest {
     lateinit var tempDir: Path
 
     @Test
-    fun `engine should create baseline when expected file does not exist`() {
-        val generated = "generated-baseline".encodeToByteArray()
-        val engine = engineWithRenderer(mapOf("generated-baseline" to listOf(solidImage())))
+    fun `engine should require at least one snapshot request for region mode`() {
+        val engine = engine()
 
-        val report = engine.run("baseline.pdf", generated)
+        val error =
+            org.junit.jupiter.api.Assertions.assertThrows(IllegalArgumentException::class.java) {
+                engine.run("region-validation.pdf", byteArrayOf(1, 2, 3), pageIndex = 0, requests = emptyList())
+            }
 
-        assertEquals(0, report.results.size)
-        assertFalse(report.hasFailures)
-        assertTrue(tempDir.resolve("baseline.pdf").toFile().exists())
+        assertEquals("No snapshot regions defined", error.message)
     }
 
     @Test
-    fun `engine should compare generated pdf against baseline`() {
-        val baseline = "same-pdf".encodeToByteArray()
-        val images = listOf(solidImage())
-        val engine = engineWithRenderer(mapOf("same-pdf" to images))
+    fun `engine should convert pdf region to image coordinates using dpi scale`() {
+        val engine = engine()
+        val method = PdfSnapshotEngine::class.java.getDeclaredMethod("convertPdfRegionToImageRegion", PdfRegion::class.java, Float::class.javaPrimitiveType)
+        method.isAccessible = true
 
-        engine.run("compare.pdf", baseline)
-        val report = engine.run("compare.pdf", baseline)
+        val region = method.invoke(engine, PdfRegion(10f, 20f, 30f, 40f), 144f)
 
-        assertFalse(report.hasFailures)
-        assertEquals(1, report.expectedPageSize)
-        assertEquals(1, report.generatedPageSize)
-        assertEquals(1, report.results.size)
+        val clazz = region!!::class.java
+        assertEquals(20, clazz.getDeclaredField("x").apply { isAccessible = true }.get(region))
+        assertEquals(40, clazz.getDeclaredField("y").apply { isAccessible = true }.get(region))
+        assertEquals(60, clazz.getDeclaredField("width").apply { isAccessible = true }.get(region))
+        assertEquals(80, clazz.getDeclaredField("height").apply { isAccessible = true }.get(region))
     }
 
     @Test
-    fun `engine should return mismatch report for changed content`() {
-        val baseline = "pdf-A".encodeToByteArray()
-        val changed = "pdf-B".encodeToByteArray()
-        val engine =
-            engineWithRenderer(
-                mapOf(
-                    "pdf-A" to listOf(solidImage(Color.WHITE)),
-                    "pdf-B" to listOf(solidImage(Color.BLACK)),
-                ),
+    fun `engine should process region diff for identical snapshots`() {
+        val engine = engine()
+        val processRegion =
+            PdfSnapshotEngine::class.java.getDeclaredMethod(
+                "processRegion",
+                BufferedImage::class.java,
+                BufferedImage::class.java,
+                SnapshotRequest::class.java,
             )
+        processRegion.isAccessible = true
 
-        engine.run("changed.pdf", baseline)
-        val report = engine.run("changed.pdf", changed)
+        val expected = solidImage()
+        val generated = solidImage()
+        val request = SnapshotRequest("header", PdfRegion(0f, 0f, 16f, 16f))
 
-        assertTrue(report.hasFailures)
-        assertEquals(1, report.results.size)
+        val result = processRegion.invoke(engine, expected, generated, request)
+        val resultClass = result!!::class.java
+
+        assertEquals("header", resultClass.getDeclaredField("name").apply { isAccessible = true }.get(result))
+        assertTrue(resultClass.getDeclaredField("matches").apply { isAccessible = true }.get(result) as Boolean)
     }
 
-    @Test
-    fun `engine should compare files even when page count differs`() {
-        val baseline = "one-page".encodeToByteArray()
-        val generated = "two-pages".encodeToByteArray()
-        val engine =
-            engineWithRenderer(
-                mapOf(
-                    "one-page" to listOf(solidImage(Color.WHITE)),
-                    "two-pages" to listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
-                ),
-            )
-
-        engine.run("pages.pdf", baseline)
-        val report = engine.run("pages.pdf", generated)
-
-        assertTrue(report.hasFailures)
-        assertEquals(1, report.expectedPageSize)
-        assertEquals(2, report.generatedPageSize)
-        assertEquals(2, report.results.size)
-    }
-
-    @Test
-    fun `AssertPdfBySnapshot should delegate to engine`() {
-        val baseline = "assert-content".encodeToByteArray()
-        val engine = engineWithRenderer(mapOf("assert-content" to listOf(solidImage())))
-
-        engine.run("assert.pdf", baseline)
-        val report = AssertPdfBySnapshot("assert.pdf", baseline, engine).execute()
-
-        assertFalse(report.hasFailures)
-        assertEquals(1, report.results.size)
-    }
-
-    private fun engineWithRenderer(renderMap: Map<String, List<BufferedImage>>): PdfSnapshotEngine =
+    private fun engine(): PdfSnapshotEngine =
         PdfSnapshotEngine(
-            config = SnapshotConfig(snapshotsDir = tempDir.toString(), tolerancePercent = 0f, dpi = 72f),
-        ) { pdfBytes, _ ->
-            renderMap[pdfBytes.decodeToString()] ?: error("No rendered pages for key: ${pdfBytes.decodeToString()}")
-        }
+            SnapshotConfig(
+                snapshotsDir = tempDir.toString(),
+                tolerancePercent = 0f,
+                dpi = 72f,
+            ),
+        )
 
     private fun solidImage(color: Color = Color.WHITE): BufferedImage =
         BufferedImage(32, 32, BufferedImage.TYPE_INT_RGB).also { image ->

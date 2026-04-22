@@ -23,13 +23,12 @@ import javax.imageio.ImageIO
  */
 public class PdfSnapshotEngine(
     private val config: SnapshotConfig = SnapshotConfig(),
-    private val pageRenderer: (pdfBytes: ByteArray, dpi: Float) -> List<BufferedImage> = ::renderPdfPages,
 ) {
     public fun run(
         expectedPdf: String,
         pdfBytes: ByteArray,
     ): SnapshotReport {
-        val pages = pageRenderer(pdfBytes, config.dpi)
+        val pages = renderPages(pdfBytes, config.dpi)
         val pagesResults = mutableListOf<SnapshotResult>()
 
         val expectedPdfFile = expectedFile(expectedPdf)
@@ -39,7 +38,7 @@ public class PdfSnapshotEngine(
             return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
-        val expectedSnapshots = pageRenderer(expectedPdfFile.readBytes(), config.dpi)
+        val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
 
         if (pages.size >= expectedSnapshots.size) {
             pages.mapIndexed { index, actualSnapshot ->
@@ -129,14 +128,14 @@ public class PdfSnapshotEngine(
         }
 
         val expectedPdfFile = expectedFile(expectedPdf)
-        val pages = pageRenderer(pdfBytes, config.dpi)
+        val pages = renderPages(pdfBytes, config.dpi)
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
             return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
         val pageImage = pages[pageIndex]
-        val expectedImage = pageRenderer(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
+        val expectedImage = renderPages(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
 
         val results = requests.map { request ->
             processRegion(
@@ -208,21 +207,19 @@ public class PdfSnapshotEngine(
         )
     }
 
-    private companion object {
-        fun renderPdfPages(
-            pdfBytes: ByteArray,
-            dpi: Float = 144f,
-        ): List<BufferedImage> {
-            PDDocument.load(pdfBytes).use { document ->
-                val renderer = PDFRenderer(document)
+    private fun renderPages(
+        pdfBytes: ByteArray,
+        dpi: Float = 144f,
+    ): List<BufferedImage> {
+        PDDocument.load(pdfBytes).use { document ->
+            val renderer = PDFRenderer(document)
 
-                return (0 until document.numberOfPages).map { pageIndex ->
-                    renderer.renderImageWithDPI(
-                        pageIndex,
-                        dpi,
-                        ImageType.RGB,
-                    )
-                }
+            return (0 until document.numberOfPages).map { pageIndex ->
+                renderer.renderImageWithDPI(
+                    pageIndex,
+                    dpi,
+                    ImageType.RGB,
+                )
             }
         }
     }

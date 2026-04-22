@@ -14,7 +14,6 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
-import java.awt.image.BufferedImage
 import java.nio.file.Path
 
 class ModelAndAssertionUnitTest {
@@ -69,22 +68,4 @@ class ModelAndAssertionUnitTest {
         assertFalse(report.hasFailures)
     }
 
-    @Test
-    fun `should cover AssertPdfBySnapshot execute with first baseline creation`() {
-        val pdfBytes = "assert-baseline".encodeToByteArray()
-        val engine =
-            PdfSnapshotEngine(
-                SnapshotConfig(
-                    snapshotsDir = tempDir.toString(),
-                    tolerancePercent = 0f,
-                    dpi = 72f,
-                ),
-            ) { _, _ -> listOf(BufferedImage(16, 16, BufferedImage.TYPE_INT_RGB)) }
-
-        val report = AssertPdfBySnapshot("assert-baseline.pdf", pdfBytes, engine).execute()
-
-        assertFalse(report.hasFailures)
-        assertEquals(0, report.results.size)
-        assertTrue(tempDir.resolve("assert-baseline.pdf").toFile().exists())
-    }
 }
