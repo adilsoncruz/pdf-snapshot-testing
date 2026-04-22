@@ -1,4 +1,5 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -11,7 +12,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.adilsoncruz"
+    group = "io.github.adilsoncruz"
     version = "0.1.0-SNAPSHOT"
 
     repositories {
@@ -48,6 +49,27 @@ subprojects {
         extensions.configure<KotlinJvmProjectExtension> {
             jvmToolchain(21)
             explicitApi()
+        }
+    }
+
+    plugins.withId("maven-publish") {
+        extensions.configure<PublishingExtension> {
+            repositories {
+                maven {
+                    name = "GitHubPackages"
+                    val repository = (findProperty("githubRepository") as String?)
+                        ?: System.getenv("GITHUB_REPOSITORY")
+                        ?: "adilsoncruz/pdf-snapshot-testing"
+                    url = uri("https://maven.pkg.github.com/$repository")
+
+                    credentials {
+                        username = (findProperty("gpr.user") as String?)
+                            ?: System.getenv("GITHUB_ACTOR")
+                        password = (findProperty("gpr.key") as String?)
+                            ?: System.getenv("GITHUB_TOKEN")
+                    }
+                }
+            }
         }
     }
 }

@@ -40,11 +40,25 @@ Use the JUnit module when writing tests:
 
 ```kotlin
 dependencies {
-    testImplementation("com.github.adilsoncruz:pdf-snapshot-junit:<version>")
+    testImplementation("io.github.adilsoncruz:pdf-snapshot-junit:<version>")
 }
 ```
 
 > For local development in this repository, the current project version is `0.1.0-SNAPSHOT`.
+
+If you publish/consume through GitHub Packages, declare the repository in your build:
+
+```kotlin
+repositories {
+    maven {
+        url = uri("https://maven.pkg.github.com/adilsoncruz/pdf-snapshot-testing")
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
+    }
+}
+```
 
 ---
 
