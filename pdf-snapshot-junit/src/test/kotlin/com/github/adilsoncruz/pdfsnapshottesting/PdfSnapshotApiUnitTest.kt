@@ -11,10 +11,14 @@ import org.junit.jupiter.api.Assertions.assertDoesNotThrow
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertSame
 import org.junit.jupiter.api.Assertions.assertThrows
+import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.Assertions.assertTimeoutPreemptively
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
+import java.io.File
 import java.nio.file.Path
+import java.time.Duration
 
 class PdfSnapshotApiUnitTest {
     @TempDir
@@ -111,6 +115,55 @@ class PdfSnapshotApiUnitTest {
                 pdfBytes = generatePdf("content"),
                 config = configForTempDir(),
             ) { _, _, _ -> report }
+        }
+    }
+
+    @Test
+    fun `PdfSnapshotTest should write runtime report when CurrentTest is present`() {
+        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
+        output.delete()
+
+        val uniqueId = "uid-pdf-snapshot-test"
+        CurrentTest.set(uniqueId)
+        SnapshotContextManager.put(uniqueId, SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId))
+
+        try {
+            val report =
+                SnapshotReport(
+                    results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
+                    expectedPageSize = 1,
+                    generatedPageSize = 1,
+                )
+            val snapshot =
+                PdfSnapshotTest(
+                    expectedPdf = "stub.pdf",
+                    pdfBytes = generatePdf("content"),
+                    config = configForTempDir(),
+                    runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _ -> report },
+                )
+
+            snapshot.assertPdfBySnapshot()
+
+            assertTrue(output.exists())
+        } finally {
+            CurrentTest.clear()
+            SnapshotContextManager.remove(uniqueId)
+            output.delete()
+        }
+    }
+
+    @Test
+    fun `assertPdfByFile should execute public adapter path on first baseline`() {
+        val config = configForTempDir()
+
+        assertTimeoutPreemptively(Duration.ofSeconds(10)) {
+            assertDoesNotThrow {
+                assertPdfByFile(
+                    expected = "public-adapter-baseline.pdf",
+                    pdfBytes = generatePdf("public adapter"),
+                    config = config,
+                )
+            }
         }
     }
 
