@@ -16,16 +16,7 @@ public fun assertPdfByFile(
     pdfBytes: ByteArray,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    assertPdfByFile(expected, pdfBytes, config, snapshotAssertionExecutor)
-}
-
-internal fun assertPdfByFile(
-    expected: String,
-    pdfBytes: ByteArray,
-    config: SnapshotConfig,
-    executor: (expected: String, pdfBytes: ByteArray, config: SnapshotConfig) -> SnapshotReport,
-) {
-    val report = executor(expected, pdfBytes, config)
+    val report = snapshotAssertionExecutor(expected, pdfBytes, config)
 
     CurrentTest.get().let { uniqueId ->
         if (uniqueId != null) {

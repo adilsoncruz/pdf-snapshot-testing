@@ -94,23 +94,27 @@ class PdfSnapshotApiUnitTest {
 
     @Test
     fun `assertPdfByFile should delegate to executor and pass on matching report`() {
+        var called = false
         val report =
             SnapshotReport(
                 results = listOf(SnapshotResult("p1", "e", "g", "d", true, 0f, 0f)),
                 expectedPageSize = 1,
                 generatedPageSize = 1,
             )
+        snapshotAssertionExecutor = { expected, _, _ ->
+            called = true
+            assertEquals("expected.pdf", expected)
+            report
+        }
 
         assertDoesNotThrow {
             assertPdfByFile(
                 expected = "expected.pdf",
                 pdfBytes = generatePdf("content"),
                 config = configForTempDir(),
-            ) { expected, _, _ ->
-                assertEquals("expected.pdf", expected)
-                report
-            }
+            )
         }
+        assertTrue(called)
     }
 
     @Test
@@ -121,13 +125,14 @@ class PdfSnapshotApiUnitTest {
                 expectedPageSize = 1,
                 generatedPageSize = 1,
             )
+        snapshotAssertionExecutor = { _, _, _ -> report }
 
         assertThrows(AssertionError::class.java) {
             assertPdfByFile(
                 expected = "expected.pdf",
                 pdfBytes = generatePdf("content"),
                 config = configForTempDir(),
-            ) { _, _, _ -> report }
+            )
         }
     }
 
