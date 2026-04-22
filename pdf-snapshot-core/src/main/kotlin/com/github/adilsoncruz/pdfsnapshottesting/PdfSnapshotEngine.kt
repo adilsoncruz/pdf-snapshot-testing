@@ -23,12 +23,13 @@ import javax.imageio.ImageIO
  */
 public class PdfSnapshotEngine(
     private val config: SnapshotConfig = SnapshotConfig(),
+    private val pageRenderer: (pdfBytes: ByteArray, dpi: Float) -> List<BufferedImage> = ::renderPdfPages,
 ) {
     public fun run(
         expectedPdf: String,
         pdfBytes: ByteArray,
     ): SnapshotReport {
-        val pages = renderPages(pdfBytes, config.dpi)
+        val pages = pageRenderer(pdfBytes, config.dpi)
         val pagesResults = mutableListOf<SnapshotResult>()
 
         val expectedPdfFile = expectedFile(expectedPdf)
@@ -38,43 +39,42 @@ public class PdfSnapshotEngine(
             return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
-        val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
+        val expectedSnapshots = pageRenderer(expectedPdfFile.readBytes(), config.dpi)
 
-        if (pages.size >= expectedSnapshots.size)
-            {
-                pages.mapIndexed { index, actualSnapshot ->
-                    val expectedSnapshot: BufferedImage =
-                        if (index < expectedSnapshots.size) {
-                            expectedSnapshots[index]
-                        } else {
-                            BufferedImage(
-                                actualSnapshot.width,
-                                actualSnapshot.height,
-                                BufferedImage.TYPE_INT_ARGB,
-                            )
-                        }
-                    val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
-
-                    pagesResults +=
-                        SnapshotResult(
-                            "Page ${index + 1}",
-                            diff.expectedHighlighted.toBase64(),
-                            diff.generatedHighlighted.toBase64(),
-                            diff.diffImage.toBase64(),
-                            diff.matches,
-                            diff.differenceRatio,
-                            diff.tolerancePercentage,
-                            diff.addedBoxes,
-                            diff.removedBoxes,
-                            diff.changedBoxes,
+        if (pages.size >= expectedSnapshots.size) {
+            pages.mapIndexed { index, actualSnapshot ->
+                val expectedSnapshot: BufferedImage =
+                    if (index < expectedSnapshots.size) {
+                        expectedSnapshots[index]
+                    } else {
+                        BufferedImage(
+                            actualSnapshot.width,
+                            actualSnapshot.height,
+                            BufferedImage.TYPE_INT_ARGB,
                         )
-                }
-                return SnapshotReport(
-                    expectedPageSize = expectedSnapshots.size,
-                    generatedPageSize = pages.size,
-                    results = pagesResults,
-                )
-            } else {
+                    }
+                val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+
+                pagesResults +=
+                    SnapshotResult(
+                        "Page ${index + 1}",
+                        diff.expectedHighlighted.toBase64(),
+                        diff.generatedHighlighted.toBase64(),
+                        diff.diffImage.toBase64(),
+                        diff.matches,
+                        diff.differenceRatio,
+                        diff.tolerancePercentage,
+                        diff.addedBoxes,
+                        diff.removedBoxes,
+                        diff.changedBoxes,
+                    )
+            }
+            return SnapshotReport(
+                expectedPageSize = expectedSnapshots.size,
+                generatedPageSize = pages.size,
+                results = pagesResults,
+            )
+        } else {
             expectedSnapshots.mapIndexed { index, expectedSnapshot ->
                 val actualSnapshot: BufferedImage =
                     if (index < pages.size) {
@@ -109,23 +109,6 @@ public class PdfSnapshotEngine(
         }
     }
 
-    private fun renderPages(
-        pdfBytes: ByteArray,
-        dpi: Float = 144f,
-    ): List<BufferedImage> {
-        PDDocument.load(pdfBytes).use { document ->
-            val renderer = PDFRenderer(document)
-
-            return (0 until document.numberOfPages).map { pageIndex ->
-                renderer.renderImageWithDPI(
-                    pageIndex,
-                    dpi,
-                    ImageType.RGB,
-                )
-            }
-        }
-    }
-
     private fun expectedFile(name: String): File = File(config.snapshotsDir, name)
 
     private fun BufferedImage.toBase64(): String {
@@ -146,14 +129,14 @@ public class PdfSnapshotEngine(
         }
 
         val expectedPdfFile = expectedFile(expectedPdf)
-        val pages = renderPages(pdfBytes, config.dpi)
+        val pages = pageRenderer(pdfBytes, config.dpi)
         if (!expectedPdfFile.exists()) {
             expectedPdfFile.writeBytes(pdfBytes)
             return SnapshotReport(results = emptyList(), expectedPageSize = pages.size, generatedPageSize = pages.size)
         }
 
         val pageImage = pages[pageIndex]
-        val expectedImage =  renderPages(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
+        val expectedImage = pageRenderer(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
 
         val results = requests.map { request ->
             processRegion(
@@ -223,5 +206,24 @@ public class PdfSnapshotEngine(
             width = (pdfRegion.width * scale).toInt(),
             height = (pdfRegion.height * scale).toInt()
         )
+    }
+
+    private companion object {
+        fun renderPdfPages(
+            pdfBytes: ByteArray,
+            dpi: Float = 144f,
+        ): List<BufferedImage> {
+            PDDocument.load(pdfBytes).use { document ->
+                val renderer = PDFRenderer(document)
+
+                return (0 until document.numberOfPages).map { pageIndex ->
+                    renderer.renderImageWithDPI(
+                        pageIndex,
+                        dpi,
+                        ImageType.RGB,
+                    )
+                }
+            }
+        }
     }
 }
