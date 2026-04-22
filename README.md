@@ -1,5 +1,13 @@
 # PDF Snapshot Testing (JVM)
 
+[![PR Validation](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/pr-validation.yml/badge.svg)](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/pr-validation.yml)
+[![Publish GitHub Packages](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/publish-github-packages.yml/badge.svg)](https://github.com/adilsoncruz/pdf-snapshot-testing/actions/workflows/publish-github-packages.yml)
+![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)
+![JVM](https://img.shields.io/badge/JVM-17%2F21-ED8B00?logo=openjdk&logoColor=white)
+![Gradle](https://img.shields.io/badge/Gradle-8.10-02303A?logo=gradle&logoColor=white)
+![JUnit](https://img.shields.io/badge/JUnit-5.10-25A162?logo=junit5&logoColor=white)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 Visual snapshot testing for PDFs on the JVM.
 Test **what users see** instead of comparing unstable PDF internals.
 
