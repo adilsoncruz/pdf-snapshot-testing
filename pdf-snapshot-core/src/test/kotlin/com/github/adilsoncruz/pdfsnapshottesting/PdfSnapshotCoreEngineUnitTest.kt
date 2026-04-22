@@ -3,12 +3,17 @@ package com.github.adilsoncruz.pdfsnapshottesting
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
+import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.pdmodel.PDPage
+import org.apache.pdfbox.pdmodel.common.PDRectangle
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.awt.Color
 import java.awt.image.BufferedImage
+import java.io.ByteArrayOutputStream
 import java.nio.file.Path
 
 class PdfSnapshotCoreEngineUnitTest {
@@ -63,6 +68,69 @@ class PdfSnapshotCoreEngineUnitTest {
 
         assertEquals("header", resultClass.getDeclaredField("name").apply { isAccessible = true }.get(result))
         assertTrue(resultClass.getDeclaredField("matches").apply { isAccessible = true }.get(result) as Boolean)
+    }
+
+    @Test
+    fun `engine should create baseline on first full run`() {
+        val engine = engine()
+        val pdfBytes = onePagePdf()
+
+        val report = engine.run("baseline-full.pdf", pdfBytes)
+
+        assertTrue(tempDir.resolve("baseline-full.pdf").toFile().exists())
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+        assertTrue(report.results.isEmpty())
+    }
+
+    @Test
+    fun `engine should compare full run against existing baseline`() {
+        val engine = engine()
+        val pdfBytes = onePagePdf()
+        engine.run("compare-full.pdf", pdfBytes)
+
+        val report = engine.run("compare-full.pdf", pdfBytes)
+
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+        assertEquals(1, report.results.size)
+        assertEquals("Page 1", report.results.first().name)
+        assertTrue(report.results.first().matches)
+        assertFalse(report.hasFailures)
+    }
+
+    @Test
+    fun `engine should create baseline on first region run`() {
+        val engine = engine()
+        val pdfBytes = onePagePdf()
+
+        val report = engine.run(
+            expectedPdf = "baseline-region.pdf",
+            pdfBytes = pdfBytes,
+            pageIndex = 0,
+            requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 50f, 50f))),
+        )
+
+        assertTrue(tempDir.resolve("baseline-region.pdf").toFile().exists())
+        assertTrue(report.results.isEmpty())
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+    }
+
+    @Test
+    fun `engine should compare region run against existing baseline`() {
+        val engine = engine()
+        val pdfBytes = onePagePdf()
+        val requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 50f, 50f)))
+        engine.run("compare-region.pdf", pdfBytes, pageIndex = 0, requests = requests)
+
+        val report = engine.run("compare-region.pdf", pdfBytes, pageIndex = 0, requests = requests)
+
+        assertEquals(1, report.expectedPageSize)
+        assertEquals(1, report.generatedPageSize)
+        assertEquals(1, report.results.size)
+        assertEquals("header", report.results.first().name)
+        assertTrue(report.results.first().matches)
     }
 
     @Test
@@ -124,4 +192,14 @@ class PdfSnapshotCoreEngineUnitTest {
             graphics.fillRect(0, 0, image.width, image.height)
             graphics.dispose()
         }
+
+    private fun onePagePdf(): ByteArray {
+        val document = PDDocument()
+        document.use {
+            it.addPage(PDPage(PDRectangle(200f, 200f)))
+            val output = ByteArrayOutputStream()
+            it.save(output)
+            return output.toByteArray()
+        }
+    }
 }
