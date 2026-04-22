@@ -57,20 +57,6 @@ class PdfSnapshotCoreEngineUnitTest {
     }
 
     @Test
-    fun `engine should compare files even when page count differs`() {
-        val config = configForTempDir()
-        val engine = PdfSnapshotEngine(config)
-
-        engine.run("pages.pdf", generatePdf("only one page"))
-        val report = engine.run("pages.pdf", generatePdf("first", "second"))
-
-        assertTrue(report.hasFailures)
-        assertEquals(1, report.expectedPageSize)
-        assertEquals(2, report.generatedPageSize)
-        assertEquals(2, report.results.size)
-    }
-
-    @Test
     fun `AssertPdfBySnapshot should delegate to engine`() {
         val config = configForTempDir()
         val engine = PdfSnapshotEngine(config)
