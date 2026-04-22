@@ -25,7 +25,7 @@ class PdfSnapshotApiUnitTest {
 
     @AfterEach
     fun resetAdapterExecutor() {
-        snapshotAssertionExecutor = ::executeSnapshotAssertion
+        resetSnapshotAssertionExecutor()
     }
 
     @Test

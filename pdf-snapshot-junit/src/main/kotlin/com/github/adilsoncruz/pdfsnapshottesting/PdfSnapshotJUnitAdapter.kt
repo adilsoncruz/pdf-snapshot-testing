@@ -7,6 +7,10 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 internal var snapshotAssertionExecutor: (expected: String, pdfBytes: ByteArray, config: SnapshotConfig) -> SnapshotReport =
     ::executeSnapshotAssertion
 
+internal fun resetSnapshotAssertionExecutor() {
+    snapshotAssertionExecutor = ::executeSnapshotAssertion
+}
+
 public fun assertPdfByFile(
     expected: String,
     pdfBytes: ByteArray,
