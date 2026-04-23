@@ -52,7 +52,7 @@ dependencies {
 
 `pdf-snapshot-junit` is the only artifact you need to install; it packages core/runtime APIs for consumers.
 
-> For local development in this repository, the current project version is `0.1.0-SNAPSHOT`.
+> For local development in this repository, the current project version is `0.1.0`.
 
 If you publish/consume through GitHub Packages, declare the repository in your build:
 
