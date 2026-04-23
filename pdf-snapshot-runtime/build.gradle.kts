@@ -2,7 +2,6 @@ plugins {
     id("java")
     kotlin("jvm")
     `java-library`
-    `maven-publish`
 }
 
 kotlin {
@@ -19,13 +18,4 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
-}
-
-publishing {
-    publications {
-        create<MavenPublication>("mavenJava") {
-            from(components["java"])
-            artifactId = "pdf-snapshot-runtime"
-        }
-    }
 }
