@@ -17,15 +17,21 @@ internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
+    val runtimeContext = CurrentTest.get()?.let { uniqueId -> SnapshotContextManager.get(uniqueId) }
+
     val context =
-        CurrentTest.get()?.let { uniqueId -> SnapshotContextManager.get(uniqueId) }
+        runtimeContext
             ?: SnapshotExecutionContext(
                 testName = report.testName ?: "snapshot assertion",
                 className = report.className.ifBlank { "StandaloneSnapshotReport" },
             )
 
     SnapshotResultFileWriter.write(context, report, config)
-    generateSnapshotHtmlReport(config)
-        ?: writeSingleSnapshotHtmlReport(context, report, config)
+
+    if (runtimeContext == null) {
+        generateSnapshotHtmlReport(config)
+            ?: writeSingleSnapshotHtmlReport(context, report, config)
+    }
+
     report.assertAll()
 }
