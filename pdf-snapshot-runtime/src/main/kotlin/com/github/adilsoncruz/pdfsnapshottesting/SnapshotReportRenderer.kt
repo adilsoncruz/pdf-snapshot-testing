@@ -4,8 +4,8 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 
 public class SnapshotReportRenderer {
-    private val FAILED = "#E53935"
-    private val PASSED = "#4CAF50"
+    private val failedColor = "#E53935"
+    private val passedColor = "#4CAF50"
 
     private fun loadTemplate(template: String): String {
         val stream =
@@ -21,13 +21,14 @@ public class SnapshotReportRenderer {
         val testSections =
             groupedReports.entries.joinToString("\n") { (_, reports) ->
                 val hasFailure = reports.any { report -> report.hasFailures }
-                val color = if (hasFailure) FAILED else PASSED
+                val color = if (hasFailure) failedColor else passedColor
                 val template = loadTemplate("test-session.html")
 
                 val testResultSections =
                     reports.map { report ->
                         "<h3>${report.testName}</h3>" +
-                            "<h4>difference ratio: ${report.results.first().differenceRatio}</br> tolerance percentage: ${report.results.first().tolerancePercentage}%</h4>" +
+                            "<h4>difference ratio: ${report.results.first().differenceRatio}</br>" +
+                            " tolerance percentage: ${report.results.first().tolerancePercentage}%</h4>" +
                             buildTestPageSection(report)
                     }.joinToString("")
                 template
@@ -45,7 +46,7 @@ public class SnapshotReportRenderer {
         report.results.mapIndexed { index, result: SnapshotResult ->
             pages.add(
                 template
-                    .replace("{{color}}", PASSED.takeIf { result.matches } ?:  FAILED)
+                    .replace("{{color}}", passedColor.takeIf { result.matches } ?: failedColor)
                     .replace("{{page}}", result.name)
                     .replace("{{expected}}", result.expected)
                     .replace("{{diff}}", result.diff)
