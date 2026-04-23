@@ -10,10 +10,13 @@ public fun assertPdfByFile(
     config: SnapshotConfig = SnapshotConfig(),
 ) {
     val report = AssertPdfBySnapshot(expectedPdf = expected, pdfBytes = pdfBytes, engine = PdfSnapshotEngine(config)).execute()
-    finalizeSnapshotReport(report)
+    finalizeSnapshotReport(report, config)
 }
 
-internal fun finalizeSnapshotReport(report: SnapshotReport) {
+internal fun finalizeSnapshotReport(
+    report: SnapshotReport,
+    config: SnapshotConfig = SnapshotConfig(),
+) {
     val context =
         CurrentTest.get()?.let { uniqueId -> SnapshotContextManager.get(uniqueId) }
             ?: SnapshotExecutionContext(
@@ -21,7 +24,7 @@ internal fun finalizeSnapshotReport(report: SnapshotReport) {
                 className = report.className.ifBlank { "StandaloneSnapshotReport" },
             )
 
-    SnapshotResultFileWriter.write(context, report)
-    generateSnapshotHtmlReport()
+    SnapshotResultFileWriter.write(context, report, config)
+    generateSnapshotHtmlReport(config)
     report.assertAll()
 }
