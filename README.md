@@ -162,6 +162,7 @@ class InvoiceSnapshotSuite {
 
 Snapshot assertions generate runtime snapshot artifacts and write an HTML report.
 When `@EnablePdfSnapshots` is active, the report is consolidated at the end of the test session.
+If consolidation artifacts are not present, a standalone HTML report is still written for the current assertion.
 
 - Default report location: `build/pdf-snapshots/index.html` (or `<snapshotsResultDir>/index.html` when customized in `SnapshotConfig`)
 - Raw intermediate files are processed and cleaned after report generation

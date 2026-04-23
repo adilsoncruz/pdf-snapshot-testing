@@ -80,6 +80,7 @@ public class PdfSnapshotTest(
 
     SnapshotResultFileWriter.write(context, report, config)
     generateSnapshotHtmlReport(config)
+      ?: writeSingleSnapshotHtmlReport(context, report, config)
 
     val dynamicTest = report.results.map { result: SnapshotResult ->
       DynamicTest.dynamicTest(result.name) {

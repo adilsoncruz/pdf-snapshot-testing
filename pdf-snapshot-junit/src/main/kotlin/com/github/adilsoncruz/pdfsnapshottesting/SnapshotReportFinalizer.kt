@@ -1,6 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import java.io.File
 
 internal fun generateSnapshotHtmlReport(
@@ -33,3 +34,24 @@ internal fun generateSnapshotHtmlReport(
     return indexFile
 }
 
+internal fun writeSingleSnapshotHtmlReport(
+    context: SnapshotExecutionContext,
+    report: SnapshotReport,
+    config: SnapshotConfig = SnapshotConfig(),
+): File {
+    val className = context.className.ifBlank { "StandaloneSnapshotReport" }
+    val normalizedReport =
+        report.copy(
+            testName = report.testName ?: context.testName,
+            className = report.className.ifBlank { className },
+        )
+
+    val grouped = mapOf(className to listOf(normalizedReport))
+    val html = SnapshotReportRenderer().generateReport(grouped)
+
+    val indexFile = File(config.snapshotsResultDir, "index.html")
+    indexFile.parentFile.mkdirs()
+    indexFile.writeText(html)
+
+    return indexFile
+}

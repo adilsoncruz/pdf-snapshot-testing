@@ -26,5 +26,6 @@ internal fun finalizeSnapshotReport(
 
     SnapshotResultFileWriter.write(context, report, config)
     generateSnapshotHtmlReport(config)
+        ?: writeSingleSnapshotHtmlReport(context, report, config)
     report.assertAll()
 }
