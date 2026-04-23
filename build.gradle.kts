@@ -11,8 +11,8 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.adilsoncruz"
-    version = "0.1.0-SNAPSHOT"
+    group = "io.github.adilsoncruz"
+    version = "0.1.0"
 
     repositories {
         mavenCentral()
@@ -50,6 +50,7 @@ subprojects {
             explicitApi()
         }
     }
+
 }
 
 tasks.withType<Test>().configureEach {

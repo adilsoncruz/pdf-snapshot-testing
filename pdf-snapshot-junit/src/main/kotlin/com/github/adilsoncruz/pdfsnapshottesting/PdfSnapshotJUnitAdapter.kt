@@ -10,14 +10,18 @@ public fun assertPdfByFile(
     config: SnapshotConfig = SnapshotConfig(),
 ) {
     val report = AssertPdfBySnapshot(expectedPdf = expected, pdfBytes = pdfBytes, engine = PdfSnapshotEngine(config)).execute()
-    finalizeSnapshotReport(report)
+    finalizeSnapshotReport(report, config)
 }
 
-internal fun finalizeSnapshotReport(report: SnapshotReport) {
-    CurrentTest.get().let { uniqueId ->
-        if (uniqueId != null) {
-            SnapshotResultFileWriter.write(SnapshotContextManager.get(uniqueId)!!, report)
+internal fun finalizeSnapshotReport(
+    report: SnapshotReport,
+    config: SnapshotConfig = SnapshotConfig(),
+) {
+    CurrentTest.get()?.let { uniqueId ->
+        SnapshotContextManager.get(uniqueId)?.let { context ->
+            SnapshotResultFileWriter.write(context, report, config)
         }
     }
+
     report.assertAll()
 }

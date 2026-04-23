@@ -71,9 +71,9 @@ public class PdfSnapshotTest(
   public fun assertPdfBySnapshot(): Collection<DynamicTest> {
     val report = this.execute()
 
-    CurrentTest.get().let { uniqueId ->
-      if (uniqueId != null) {
-        SnapshotResultFileWriter.write(SnapshotContextManager.get(uniqueId)!!, report)
+    CurrentTest.get()?.let { uniqueId ->
+      SnapshotContextManager.get(uniqueId)?.let { context ->
+        SnapshotResultFileWriter.write(context, report, config)
       }
     }
 
