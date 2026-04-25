@@ -37,12 +37,15 @@ This library renders PDFs to images and compares the visual result, which makes 
 - `pdf-snapshot-core`: rendering and diff engine.
 - `pdf-snapshot-runtime`: runtime report serialization and HTML report generation.
 - `pdf-snapshot-junit`: JUnit 5 API and extension helpers.
+- `pdf-snapshot-kotest`: Kotest API and lifecycle extension helpers.
 
 ---
 
-## Installation (`pdf-snapshot-junit`)
+## Installation
 
-Use the JUnit module when writing tests:
+Use the module that matches your test framework:
+
+### JUnit
 
 ```kotlin
 dependencies {
@@ -50,7 +53,17 @@ dependencies {
 }
 ```
 
-`pdf-snapshot-junit` is the only artifact you need to install; it packages core/runtime APIs for consumers.
+`pdf-snapshot-junit` packages core/runtime APIs for JUnit consumers.
+
+### Kotest
+
+```kotlin
+dependencies {
+    testImplementation("io.github.adilsoncruz:pdf-snapshot-kotest:<version>")
+}
+```
+
+`pdf-snapshot-kotest` packages core/runtime APIs for Kotest consumers.
 
 > For local development in this repository, the current project version is `0.1.0`.
 
