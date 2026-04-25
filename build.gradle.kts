@@ -11,11 +11,12 @@ plugins {
 }
 
 allprojects {
-    group = "com.github.adilsoncruz.pdfsnapshottesting"
-    version = "0.1.0-SNAPSHOT"
+    group = "io.github.adilsoncruz"
+    version = "0.1.0"
 
     repositories {
         mavenCentral()
+        mavenLocal()
     }
 }
 
@@ -49,6 +50,7 @@ subprojects {
             explicitApi()
         }
     }
+
 }
 
 tasks.withType<Test>().configureEach {
