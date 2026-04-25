@@ -2,11 +2,11 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
-import java.lang.reflect.InvocationTargetException
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import java.lang.reflect.InvocationTargetException
 
 class SnapshotReportRendererTest {
     private val renderer = SnapshotReportRenderer()
@@ -45,7 +45,11 @@ class SnapshotReportRendererTest {
         assertEquals("template.html not found in resources", error.targetException.message)
     }
 
-    private fun sampleReport(matches: Boolean, className: String, testName: String): SnapshotReport =
+    private fun sampleReport(
+        matches: Boolean,
+        className: String,
+        testName: String,
+    ): SnapshotReport =
         SnapshotReport(
             testName = testName,
             className = className,

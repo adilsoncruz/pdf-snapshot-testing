@@ -128,7 +128,10 @@ class PdfSnapshotApiUnitTest {
 
         val uniqueId = "uid-finalize-report"
         CurrentTest.set(uniqueId)
-        SnapshotContextManager.put(uniqueId, SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId))
+        SnapshotContextManager.put(
+            uniqueId,
+            SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId),
+        )
 
         try {
             val report =
@@ -153,7 +156,10 @@ class PdfSnapshotApiUnitTest {
 
         val uniqueId = "uid-pdf-snapshot-test"
         CurrentTest.set(uniqueId)
-        SnapshotContextManager.put(uniqueId, SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId))
+        SnapshotContextManager.put(
+            uniqueId,
+            SnapshotExecutionContext("writes report", "PdfSnapshotApiUnitTest", uniqueId),
+        )
 
         try {
             val report =

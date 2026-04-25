@@ -1,7 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import java.io.File
 
 public object SnapshotResultFileWriter {

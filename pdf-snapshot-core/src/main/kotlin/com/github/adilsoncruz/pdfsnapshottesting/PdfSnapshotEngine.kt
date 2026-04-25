@@ -3,9 +3,9 @@ package com.github.adilsoncruz.pdfsnapshottesting
 import com.github.adilsoncruz.pdfsnapshottesting.models.ImageRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
@@ -55,7 +55,6 @@ public class PdfSnapshotEngine(
         pageIndex: Int,
         requests: List<SnapshotRequest> = emptyList(),
     ): SnapshotReport {
-
         require(requests.isNotEmpty()) {
             "No snapshot regions defined"
         }
@@ -75,7 +74,7 @@ public class PdfSnapshotEngine(
         return SnapshotReport(
             expectedPageSize = 1,
             generatedPageSize = 1,
-            results = results
+            results = results,
         )
     }
 
@@ -84,25 +83,27 @@ public class PdfSnapshotEngine(
         pageImage: BufferedImage,
         request: SnapshotRequest,
     ): SnapshotResult {
+        val imageRegion =
+            convertPdfRegionToImageRegion(
+                request.region,
+                config.dpi,
+            )
 
-        val imageRegion = convertPdfRegionToImageRegion(
-            request.region,
-            config.dpi
-        )
+        val expectedImageRegion =
+            expectedImage.getSubimage(
+                imageRegion.x,
+                imageRegion.y,
+                imageRegion.width,
+                imageRegion.height,
+            )
 
-        val expectedImageRegion = expectedImage.getSubimage(
-            imageRegion.x,
-            imageRegion.y,
-            imageRegion.width,
-            imageRegion.height
-        )
-
-        val actualSnapshotRegion = pageImage.getSubimage(
-            imageRegion.x,
-            imageRegion.y,
-            imageRegion.width,
-            imageRegion.height
-        )
+        val actualSnapshotRegion =
+            pageImage.getSubimage(
+                imageRegion.x,
+                imageRegion.y,
+                imageRegion.width,
+                imageRegion.height,
+            )
 
         val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedImageRegion, actualSnapshotRegion, config)
 
@@ -122,7 +123,7 @@ public class PdfSnapshotEngine(
 
     private fun convertPdfRegionToImageRegion(
         pdfRegion: PdfRegion,
-        dpi: Float
+        dpi: Float,
     ): ImageRegion {
         val scale = dpi / 72f
 
@@ -130,7 +131,7 @@ public class PdfSnapshotEngine(
             x = (pdfRegion.x * scale).toInt(),
             y = (pdfRegion.yFromTop * scale).toInt(),
             width = (pdfRegion.width * scale).toInt(),
-            height = (pdfRegion.height * scale).toInt()
+            height = (pdfRegion.height * scale).toInt(),
         )
     }
 

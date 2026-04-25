@@ -35,7 +35,12 @@ class PdfSnapshotCoreEngineUnitTest {
     @Test
     fun `engine should convert pdf region to image coordinates using dpi scale`() {
         val engine = engine()
-        val method = PdfSnapshotEngine::class.java.getDeclaredMethod("convertPdfRegionToImageRegion", PdfRegion::class.java, Float::class.javaPrimitiveType)
+        val method =
+            PdfSnapshotEngine::class.java.getDeclaredMethod(
+                "convertPdfRegionToImageRegion",
+                PdfRegion::class.java,
+                Float::class.javaPrimitiveType,
+            )
         method.isAccessible = true
 
         val region = method.invoke(engine, PdfRegion(10f, 20f, 30f, 40f), 144f)
@@ -104,12 +109,13 @@ class PdfSnapshotCoreEngineUnitTest {
         val engine = engine()
         val pdfBytes = onePagePdf()
 
-        val report = engine.run(
-            expectedPdf = "baseline-region.pdf",
-            pdfBytes = pdfBytes,
-            pageIndex = 0,
-            requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 50f, 50f))),
-        )
+        val report =
+            engine.run(
+                expectedPdf = "baseline-region.pdf",
+                pdfBytes = pdfBytes,
+                pageIndex = 0,
+                requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 50f, 50f))),
+            )
 
         assertTrue(tempDir.resolve("baseline-region.pdf").toFile().exists())
         assertTrue(report.results.isEmpty())
@@ -136,10 +142,11 @@ class PdfSnapshotCoreEngineUnitTest {
     @Test
     fun `engine should build page comparison report when generated has more pages`() {
         val engine = engine()
-        val report = engine.buildPageComparisonReport(
-            pages = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
-            expectedSnapshots = listOf(solidImage(Color.WHITE)),
-        )
+        val report =
+            engine.buildPageComparisonReport(
+                pages = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
+                expectedSnapshots = listOf(solidImage(Color.WHITE)),
+            )
 
         assertEquals(1, report.expectedPageSize)
         assertEquals(2, report.generatedPageSize)
@@ -150,10 +157,11 @@ class PdfSnapshotCoreEngineUnitTest {
     @Test
     fun `engine should build page comparison report when expected has more pages`() {
         val engine = engine()
-        val report = engine.buildPageComparisonReport(
-            pages = listOf(solidImage(Color.WHITE)),
-            expectedSnapshots = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
-        )
+        val report =
+            engine.buildPageComparisonReport(
+                pages = listOf(solidImage(Color.WHITE)),
+                expectedSnapshots = listOf(solidImage(Color.WHITE), solidImage(Color.BLACK)),
+            )
 
         assertEquals(2, report.expectedPageSize)
         assertEquals(1, report.generatedPageSize)

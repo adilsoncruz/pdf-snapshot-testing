@@ -1,7 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue

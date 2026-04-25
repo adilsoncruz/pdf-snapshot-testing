@@ -4,9 +4,9 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.BoundingBox
 import com.github.adilsoncruz.pdfsnapshottesting.models.ImageRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertFalse
@@ -82,5 +82,4 @@ class ModelAndAssertionUnitTest {
 
         assertThrows(Exception::class.java) { assertion.execute() }
     }
-
 }

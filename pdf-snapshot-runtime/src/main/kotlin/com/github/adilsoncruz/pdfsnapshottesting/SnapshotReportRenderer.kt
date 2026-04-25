@@ -1,7 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting
 
-import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
+import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 
 public class SnapshotReportRenderer {
     private val failedColor = "#E53935"

@@ -9,7 +9,12 @@ public fun assertPdfByFile(
     pdfBytes: ByteArray,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    val report = AssertPdfBySnapshot(expectedPdf = expected, pdfBytes = pdfBytes, engine = PdfSnapshotEngine(config)).execute()
+    val report =
+        AssertPdfBySnapshot(
+            expectedPdf = expected,
+            pdfBytes = pdfBytes,
+            engine = PdfSnapshotEngine(config),
+        ).execute()
     finalizeSnapshotReport(report, config)
 }
 
