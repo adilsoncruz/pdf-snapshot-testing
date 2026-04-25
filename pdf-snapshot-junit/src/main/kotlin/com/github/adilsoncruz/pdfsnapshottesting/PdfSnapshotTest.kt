@@ -52,11 +52,6 @@ public class PdfSnapshotTest(
         return this
     }
 
-    /**
-     * Executes the snapshot process and returns a report.
-     *
-     * This method is framework-agnostic.
-     */
     private fun execute(): SnapshotReport {
         return runner.run(
             expectedPdf = expectedPdf,
