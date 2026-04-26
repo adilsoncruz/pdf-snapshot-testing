@@ -38,9 +38,10 @@ public class PdfSnapshotTest(
         )
     }
 
-    public fun assertPdfBySnapshot() {
+    public fun assertPdfBySnapshot(): SnapshotReport {
         val report = this.execute()
         finalizeSnapshotReport(report, config)
+        return report
     }
 
     public fun interface SnapshotRunner {

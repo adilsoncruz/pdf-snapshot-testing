@@ -56,7 +56,9 @@ class PdfSnapshotKotestApiTest : FunSpec({
                     },
             )
 
-        snapshot.assertPdfBySnapshot()
+        val report = snapshot.assertPdfBySnapshot()
+
+        report.results.size shouldBe 1
     }
 
     test("assertPdfByFile should fail fast for invalid pdf bytes") {
