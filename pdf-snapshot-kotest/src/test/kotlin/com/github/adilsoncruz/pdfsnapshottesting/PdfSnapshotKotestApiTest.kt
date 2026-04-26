@@ -1,5 +1,6 @@
-package com.github.adilsoncruz.pdfsnapshottesting
+package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotExecutionContext
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
@@ -17,8 +18,8 @@ class PdfSnapshotKotestApiTest : FunSpec({
     val output = File("build/pdf-snapshots/raw/PdfSnapshotKotestApiTest.json")
 
     afterTest {
-        CurrentTest.clear()
-        SnapshotContextManager.remove("uid-kotest")
+        CurrentKotestTest.clear()
+        KotestSnapshotContextManager.remove("uid-kotest")
         output.delete()
     }
 
@@ -74,8 +75,8 @@ class PdfSnapshotKotestApiTest : FunSpec({
     test("finalizeSnapshotReport should write runtime report when CurrentTest is present") {
         output.delete()
 
-        CurrentTest.set("uid-kotest")
-        SnapshotContextManager.put(
+        CurrentKotestTest.set("uid-kotest")
+        KotestSnapshotContextManager.put(
             "uid-kotest",
             SnapshotExecutionContext("writes report", "PdfSnapshotKotestApiTest", "uid-kotest"),
         )

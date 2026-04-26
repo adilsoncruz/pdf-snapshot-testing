@@ -1,6 +1,6 @@
-package com.github.adilsoncruz.pdfsnapshottesting
+package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
-public object CurrentTest {
+public object CurrentKotestTest {
     private val threadLocal = ThreadLocal<String>()
 
     public fun set(uniqueId: String) {

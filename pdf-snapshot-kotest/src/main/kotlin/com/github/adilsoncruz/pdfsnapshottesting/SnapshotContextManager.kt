@@ -1,8 +1,9 @@
-package com.github.adilsoncruz.pdfsnapshottesting
+package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotExecutionContext
 import java.util.concurrent.ConcurrentHashMap
 
-public object SnapshotContextManager {
+public object KotestSnapshotContextManager {
     private val contexts =
         ConcurrentHashMap<String, SnapshotExecutionContext>()
 

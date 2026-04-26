@@ -1,5 +1,6 @@
-package com.github.adilsoncruz.pdfsnapshottesting
+package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotExecutionContext
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import io.kotest.core.listeners.AfterProjectListener
 import io.kotest.core.listeners.AfterTestListener
@@ -10,9 +11,9 @@ import io.kotest.core.test.TestResult
 public object SnapshotKotestExtension : BeforeTestListener, AfterTestListener, AfterProjectListener {
     override suspend fun beforeTest(testCase: TestCase) {
         val uniqueId = testCase.descriptor.id.value
-        CurrentTest.set(uniqueId)
+        CurrentKotestTest.set(uniqueId)
 
-        SnapshotContextManager.put(
+        KotestSnapshotContextManager.put(
             uniqueId,
             SnapshotExecutionContext(
                 testName = testCase.name.testName,
@@ -27,8 +28,8 @@ public object SnapshotKotestExtension : BeforeTestListener, AfterTestListener, A
         result: TestResult,
     ) {
         val uniqueId = testCase.descriptor.id.value
-        CurrentTest.clear()
-        SnapshotContextManager.remove(uniqueId)
+        CurrentKotestTest.clear()
+        KotestSnapshotContextManager.remove(uniqueId)
     }
 
     override suspend fun afterProject() {

@@ -63,7 +63,7 @@ dependencies {
 }
 ```
 
-`pdf-snapshot-kotest` packages core/runtime APIs for Kotest consumers.
+`pdf-snapshot-kotest` packages core/runtime APIs for Kotest consumers under `com.github.adilsoncruz.pdfsnapshottesting.kotest` to avoid class conflicts with the JUnit module.
 
 > For local development in this repository, the current project version is `0.1.0`.
 
