@@ -1,5 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
+import com.github.adilsoncruz.pdfsnapshottesting.CurrentTest
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotContextManager
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotExecutionContext
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.nulls.shouldBeNull
@@ -7,12 +9,12 @@ import io.kotest.matchers.shouldBe
 
 class SnapshotContextKotestTest : FunSpec({
     test("should manage current test id in thread local") {
-        CurrentKotestTest.set("test-123")
+        CurrentTest.set("test-123")
 
-        CurrentKotestTest.get() shouldBe "test-123"
+        CurrentTest.get() shouldBe "test-123"
 
-        CurrentKotestTest.clear()
-        CurrentKotestTest.get().shouldBeNull()
+        CurrentTest.clear()
+        CurrentTest.get().shouldBeNull()
     }
 
     test("should store and remove execution contexts by unique id") {
@@ -23,10 +25,10 @@ class SnapshotContextKotestTest : FunSpec({
                 uniqueId = "uid-1",
             )
 
-        KotestSnapshotContextManager.put("uid-1", context)
-        KotestSnapshotContextManager.get("uid-1") shouldBe context
+        SnapshotContextManager.put("uid-1", context)
+        SnapshotContextManager.get("uid-1") shouldBe context
 
-        KotestSnapshotContextManager.remove("uid-1")
-        KotestSnapshotContextManager.get("uid-1").shouldBeNull()
+        SnapshotContextManager.remove("uid-1")
+        SnapshotContextManager.get("uid-1").shouldBeNull()
     }
 })

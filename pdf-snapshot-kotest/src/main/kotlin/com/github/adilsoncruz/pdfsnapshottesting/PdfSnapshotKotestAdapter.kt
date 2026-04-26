@@ -1,5 +1,7 @@
 package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
+import com.github.adilsoncruz.pdfsnapshottesting.CurrentTest
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotContextManager
 import com.github.adilsoncruz.pdfsnapshottesting.AssertPdfBySnapshot
 import com.github.adilsoncruz.pdfsnapshottesting.PdfSnapshotEngine
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotResultFileWriter
@@ -26,8 +28,8 @@ internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    CurrentKotestTest.get()?.let { uniqueId ->
-        KotestSnapshotContextManager.get(uniqueId)?.let { context ->
+    CurrentTest.get()?.let { uniqueId ->
+        SnapshotContextManager.get(uniqueId)?.let { context ->
             SnapshotResultFileWriter.write(context, report, config)
         }
     }
