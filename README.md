@@ -37,6 +37,64 @@ This library renders PDFs to images and compares the visual result, which makes 
 - `pdf-snapshot-core`: rendering and diff engine.
 - `pdf-snapshot-runtime`: runtime report serialization and HTML report generation.
 - `pdf-snapshot-junit`: JUnit 5 API and extension helpers.
+- `pdf-snapshot-kotest`: Kotest API and lifecycle extension helpers.
+
+---
+
+## Installation
+
+Use the module that matches your test framework:
+
+### JUnit
+
+```kotlin
+dependencies {
+    testImplementation("io.github.adilsoncruz:pdf-snapshot-junit:<version>")
+}
+```
+
+`pdf-snapshot-junit` packages core/runtime APIs for JUnit consumers.
+
+### Kotest
+
+```kotlin
+dependencies {
+    testImplementation("io.github.adilsoncruz:pdf-snapshot-kotest:<version>")
+}
+```
+
+`pdf-snapshot-kotest` packages core/runtime APIs for Kotest consumers under `com.github.adilsoncruz.pdfsnapshottesting.kotest` to avoid class conflicts with the JUnit module.
+
+> For local development in this repository, the current project version is `0.1.0`.
+
+If you publish/consume through GitHub Packages, declare the repository in your build:
+
+```kotlin
+
+`pdf-snapshot-testing` helps you validate rendered PDF output in automated tests.
+
+Traditional byte-by-byte PDF comparison is brittle because PDFs can change internally even when the visual output is identical (metadata, object ordering, compression, font embedding, etc.).
+
+This library renders PDFs to images and compares the visual result, which makes tests significantly more stable for real-world document generation scenarios.
+
+---
+
+## Main benefits
+
+- **Visual-first validation**: verifies rendered content, not binary structure.
+- **More stable tests**: avoids false negatives caused by non-deterministic PDF internals.
+- **Region-based assertions**: focus checks on specific areas of a page.
+- **Multiple snapshots per document**: assert several regions in one test.
+- **JUnit 5 integration**: easy usage in existing JVM test suites.
+- **Debug/report artifacts**: generates runtime artifacts for diagnosis.
+
+---
+
+## Modules
+
+- `pdf-snapshot-core`: rendering and diff engine.
+- `pdf-snapshot-runtime`: runtime report serialization and HTML report generation.
+- `pdf-snapshot-junit`: JUnit 5 API and extension helpers.
 
 ---
 
@@ -73,6 +131,11 @@ repositories {
 ## Quick start with `assertPdfByFile`
 
 `assertPdfByFile` is the simplest API. It compares a generated PDF (`ByteArray`) against a baseline snapshot file name.
+
+Use the import that matches the test framework module you installed:
+
+- JUnit: `com.github.adilsoncruz.pdfsnapshottesting.assertPdfByFile`
+- Kotest: `com.github.adilsoncruz.pdfsnapshottesting.kotest.assertPdfByFile`
 
 ```kotlin
 import com.github.adilsoncruz.pdfsnapshottesting.assertPdfByFile
@@ -139,7 +202,9 @@ You can call `drawRegionOverlay()` while building the fluent chain to generate v
 
 ---
 
-## Enabling JUnit lifecycle integration (`@EnablePdfSnapshots`)
+## Enabling lifecycle integration
+
+### JUnit (`@EnablePdfSnapshots`)
 
 `@EnablePdfSnapshots` registers the snapshot extension for a test class.
 When enabled, snapshot runtime artifacts are finalized into a consolidated HTML report at the end of the test session.
@@ -158,9 +223,22 @@ class InvoiceSnapshotSuite {
 }
 ```
 
+### Kotest (`SnapshotKotestExtension`)
+
+Register `SnapshotKotestExtension` in your Kotest project configuration so snapshot runtime artifacts are finalized into the consolidated HTML report after the Kotest project finishes.
+
+```kotlin
+import com.github.adilsoncruz.pdfsnapshottesting.kotest.SnapshotKotestExtension
+import io.kotest.core.config.AbstractProjectConfig
+
+object ProjectConfig : AbstractProjectConfig() {
+    override fun extensions() = listOf(SnapshotKotestExtension)
+}
+```
+
 ## Snapshot report output
 
-When `@EnablePdfSnapshots` is active, snapshot assertions generate runtime artifacts and the HTML report is consolidated at the end of the test session.
+When JUnit `@EnablePdfSnapshots` or Kotest `SnapshotKotestExtension` is active, snapshot assertions generate runtime artifacts and the HTML report is consolidated at the end of the test session.
 This avoids generating HTML for every assertion and keeps test execution faster.
 
 - Default report location: `build/pdf-snapshots/index.html` (or `<snapshotsResultDir>/index.html` when customized in `SnapshotConfig`)

@@ -4,6 +4,7 @@ include(
   ":pdf-snapshot-core",
   ":pdf-snapshot-runtime",
   ":pdf-snapshot-junit",
+  ":pdf-snapshot-kotest",
 )
 
 pluginManagement {

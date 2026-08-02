@@ -3,7 +3,7 @@ package com.github.adilsoncruz.pdfsnapshottesting
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import java.io.File
 
-internal fun generateSnapshotHtmlReport(
+public fun generateSnapshotHtmlReport(
     config: SnapshotConfig = SnapshotConfig(),
     cleanRawFiles: Boolean = false,
 ): File? {
