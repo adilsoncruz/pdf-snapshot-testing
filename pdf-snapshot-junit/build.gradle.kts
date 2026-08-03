@@ -30,6 +30,22 @@ dependencies {
 
 tasks.test {
     useJUnitPlatform()
+
+    testLogging {
+        events(
+            TestLogEvent.PASSED,
+            TestLogEvent.FAILED,
+            TestLogEvent.SKIPPED
+        )
+
+        exceptionFormat = TestExceptionFormat.FULL
+
+        showExceptions = true
+        showCauses = true
+        showStackTraces = true
+
+        showStandardStreams = false
+    }
 }
 
 tasks.jar {
