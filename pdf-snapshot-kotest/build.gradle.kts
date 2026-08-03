@@ -28,21 +28,9 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 
-    testLogging {
-        events(
-            TestLogEvent.PASSED,
-            TestLogEvent.FAILED,
-            TestLogEvent.SKIPPED
-        )
-
-        exceptionFormat = TestExceptionFormat.FULL
-
-        showExceptions = true
-        showCauses = true
-        showStackTraces = true
-
-        showStandardStreams = false
-    }
+    afterTest(KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
+        println("${result.resultType}: ${descriptor.className} > ${descriptor.displayName}")
+    }))
 }
 
 tasks.jar {
