@@ -19,17 +19,3 @@ dependencies {
 
     testImplementation("com.github.librepdf:openpdf:1.3.30")
 }
-
-tasks.test {
-    useJUnitPlatform()
-
-    afterTest { descriptor, result ->
-        val icon = when (result.resultType) {
-            TestResult.ResultType.SUCCESS -> "✓"
-            TestResult.ResultType.FAILURE -> "✗"
-            TestResult.ResultType.SKIPPED -> "○"
-        }
-
-        println("$icon ${descriptor.displayName}")
-    }
-}

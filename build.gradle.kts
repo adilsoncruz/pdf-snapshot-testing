@@ -1,5 +1,6 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.codehaus.groovy.tools.shell.util.Logger.io
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -25,6 +26,18 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "jacoco")
+
+    tasks.withType<Test>().configureEach {
+        useJUnitPlatform()
+
+        testLogging {
+            events(
+                TestLogEvent.PASSED,
+                TestLogEvent.FAILED,
+                TestLogEvent.SKIPPED
+            )
+        }
+    }
 
     tasks.register("wrapper") {
         group = "build setup"

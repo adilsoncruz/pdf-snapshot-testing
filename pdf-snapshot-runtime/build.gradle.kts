@@ -18,13 +18,3 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
 }
-
-tasks.test {
-    useJUnitPlatform()
-
-    afterTest(
-        KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
-            println("${result.resultType}: ${descriptor.className} > ${descriptor.displayName}")
-        })
-    )
-}
