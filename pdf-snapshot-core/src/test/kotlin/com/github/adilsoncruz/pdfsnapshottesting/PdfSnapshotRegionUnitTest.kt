@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
 import java.io.ByteArrayOutputStream
 import java.nio.file.Path
+import java.util.Collections.emptyList
 
 class PdfSnapshotRegionUnitTest {
     @TempDir
