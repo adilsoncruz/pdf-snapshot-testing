@@ -13,7 +13,7 @@ Test **what users see** instead of comparing unstable PDF internals.
 
 ## What this library is for
 
-`pdf-snapshot-testing` helps you validate rendered PDF output in automated tests.
+*pdf-snapshot-testing* helps you validate rendered PDF output in automated tests.
 
 Traditional byte-by-byte PDF comparison is brittle because PDFs can change internally even when the visual output is identical (metadata, object ordering, compression, font embedding, etc.).
 
@@ -69,9 +69,7 @@ dependencies {
 
 If you publish/consume through GitHub Packages, declare the repository in your build:
 
-```kotlin
-
-`pdf-snapshot-testing` helps you validate rendered PDF output in automated tests.
+*pdf-snapshot-testing* helps you validate rendered PDF output in automated tests.
 
 Traditional byte-by-byte PDF comparison is brittle because PDFs can change internally even when the visual output is identical (metadata, object ordering, compression, font embedding, etc.).
 
