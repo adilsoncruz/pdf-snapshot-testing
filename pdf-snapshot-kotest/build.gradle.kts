@@ -28,11 +28,15 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 
-    afterTest(
-        KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
-            println("${result.resultType}: ${descriptor.className} > ${descriptor.displayName}")
-        })
-    )
+    afterTest { descriptor, result ->
+        val icon = when (result.resultType) {
+            TestResult.ResultType.SUCCESS -> "✓"
+            TestResult.ResultType.FAILURE -> "✗"
+            TestResult.ResultType.SKIPPED -> "○"
+        }
+
+        println("$icon ${descriptor.displayName}")
+    }
 }
 
 tasks.jar {
