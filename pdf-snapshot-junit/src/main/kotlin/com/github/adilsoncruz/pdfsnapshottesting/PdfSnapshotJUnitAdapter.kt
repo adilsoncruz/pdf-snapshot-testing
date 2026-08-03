@@ -18,6 +18,8 @@ public fun assertPdfByFile(
     finalizeSnapshotReport(report, config)
 }
 
+public fun assertPdf(pdfBytes: ByteArray): PdfTextAssertion = PdfTextAssertion(pdfBytes)
+
 internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),

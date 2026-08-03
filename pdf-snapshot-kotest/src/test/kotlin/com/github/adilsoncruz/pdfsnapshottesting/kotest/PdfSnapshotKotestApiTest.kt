@@ -43,6 +43,13 @@ class PdfSnapshotKotestApiTest : FunSpec({
         sameAfterRegion shouldBe snapshot
     }
 
+    test("assertPdf should validate text inside a region") {
+        assertPdf(generatePdf("Invoice"))
+            .page(0)
+            .region(0, 0, 400, 200)
+            .containsText("Invoice")
+    }
+
     test("PdfSnapshotTest should assert runner report") {
         val snapshot =
             PdfSnapshotTest(

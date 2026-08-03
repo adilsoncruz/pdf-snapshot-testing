@@ -9,6 +9,8 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
 import org.apache.pdfbox.pdmodel.PDDocument
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
+import org.apache.pdfbox.text.PDFTextStripperByArea
+import java.awt.geom.Rectangle2D
 import java.awt.image.BufferedImage
 import java.io.ByteArrayOutputStream
 import java.io.File
@@ -39,6 +41,38 @@ public class PdfSnapshotEngine(
 
         val expectedSnapshots = renderPages(expectedPdfFile.readBytes(), config.dpi)
         return buildPageComparisonReport(pages, expectedSnapshots)
+    }
+
+    public fun extractText(
+        pdfBytes: ByteArray,
+        pageIndex: Int,
+        region: PdfRegion,
+    ): String {
+        require(pageIndex >= 0) { "Page index must be >= 0" }
+
+        PDDocument.load(pdfBytes).use { document ->
+            require(pageIndex < document.numberOfPages) {
+                "Page index $pageIndex is out of bounds for PDF with ${document.numberOfPages} pages"
+            }
+
+            val regionName = "requested-region"
+            val stripper =
+                PDFTextStripperByArea().apply {
+                    sortByPosition = true
+                    addRegion(
+                        regionName,
+                        Rectangle2D.Float(
+                            region.x,
+                            region.yFromTop,
+                            region.width,
+                            region.height,
+                        ),
+                    )
+                }
+
+            stripper.extractRegions(document.getPage(pageIndex))
+            return stripper.getTextForRegion(regionName).trim()
+        }
     }
 
     private fun expectedFile(name: String): File = File(config.snapshotsDir, name)
