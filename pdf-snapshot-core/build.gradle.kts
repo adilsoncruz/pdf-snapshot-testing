@@ -20,7 +20,9 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
 
-    afterTest(KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
-        println("${result.resultType}: ${descriptor.className} > ${descriptor.displayName}")
-    }))
+    afterTest(
+        KotlinClosure2<TestDescriptor, TestResult, Unit>({ descriptor, result ->
+            println("${result.resultType}: ${descriptor.className} > ${descriptor.displayName}")
+        })
+    )
 }
