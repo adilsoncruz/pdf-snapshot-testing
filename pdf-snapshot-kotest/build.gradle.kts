@@ -7,7 +7,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -23,10 +23,6 @@ dependencies {
     testImplementation(project(":pdf-snapshot-runtime"))
 
     testImplementation("com.github.librepdf:openpdf:1.3.30")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }
 
 tasks.jar {

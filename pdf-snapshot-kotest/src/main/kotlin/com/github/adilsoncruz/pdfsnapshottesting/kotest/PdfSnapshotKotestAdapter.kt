@@ -3,6 +3,7 @@ package com.github.adilsoncruz.pdfsnapshottesting.kotest
 import com.github.adilsoncruz.pdfsnapshottesting.AssertPdfBySnapshot
 import com.github.adilsoncruz.pdfsnapshottesting.CurrentTest
 import com.github.adilsoncruz.pdfsnapshottesting.PdfSnapshotEngine
+import com.github.adilsoncruz.pdfsnapshottesting.PdfTextAssertion
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotContextManager
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotResultFileWriter
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
@@ -23,6 +24,8 @@ public fun assertPdfByFile(
 
     finalizeSnapshotReport(report, config)
 }
+
+public fun assertPdf(pdfBytes: ByteArray): PdfTextAssertion = PdfTextAssertion(pdfBytes)
 
 internal fun finalizeSnapshotReport(
     report: SnapshotReport,

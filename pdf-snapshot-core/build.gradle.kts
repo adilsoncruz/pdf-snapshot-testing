@@ -4,7 +4,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -15,8 +15,4 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher:1.10.0")
 
     testImplementation("com.github.librepdf:openpdf:1.3.30")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

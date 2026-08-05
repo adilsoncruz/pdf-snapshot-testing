@@ -5,7 +5,7 @@ plugins {
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 dependencies {
@@ -14,8 +14,4 @@ dependencies {
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation(kotlin("stdlib-jdk8"))
     implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.17.0")
-}
-
-tasks.test {
-    useJUnitPlatform()
 }

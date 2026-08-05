@@ -58,6 +58,16 @@ class PdfSnapshotApiUnitTest {
     }
 
     @Test
+    fun `assertPdf should validate text inside a region`() {
+        assertDoesNotThrow {
+            assertPdf(generatePdf("Invoice"))
+                .page(0)
+                .region(0, 0, 400, 200)
+                .containsText("Invoice")
+        }
+    }
+
+    @Test
     fun `PdfSnapshotTest should create dynamic tests from runner results`() {
         val report =
             SnapshotReport(
