@@ -69,6 +69,35 @@ class ModelAndAssertionUnitTest {
     }
 
     @Test
+    fun `should expose all snapshot result fields`() {
+        val boxes = listOf(BoundingBox(1, 2, 3, 4))
+        val result =
+            SnapshotResult(
+                name = "page-1",
+                expected = "e",
+                generated = "g",
+                diff = "d",
+                matches = false,
+                differenceRatio = 0.2f,
+                tolerancePercentage = 0.01f,
+                addedBoxes = boxes,
+                removedBoxes = boxes,
+                changedBoxes = boxes,
+            )
+
+        assertEquals("page-1", result.name)
+        assertEquals("e", result.expected)
+        assertEquals("g", result.generated)
+        assertEquals("d", result.diff)
+        assertFalse(result.matches)
+        assertEquals(0.2f, result.differenceRatio)
+        assertEquals(0.01f, result.tolerancePercentage)
+        assertEquals(boxes, result.addedBoxes)
+        assertEquals(boxes, result.removedBoxes)
+        assertEquals(boxes, result.changedBoxes)
+    }
+
+    @Test
     fun `should cover AssertPdfBySnapshot execute call`() {
         val engine =
             PdfSnapshotEngine(
