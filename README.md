@@ -1,7 +1,7 @@
 # PDF Snapshot Testing (JVM)
 
 ![Kotlin](https://img.shields.io/badge/Kotlin-2.0.21-7F52FF?logo=kotlin&logoColor=white)
-![JVM](https://img.shields.io/badge/JVM-17%2F21-ED8B00?logo=openjdk&logoColor=white)
+![JVM](https://img.shields.io/badge/JVM-21-ED8B00?logo=openjdk&logoColor=white)
 ![Gradle](https://img.shields.io/badge/Gradle-8.10-02303A?logo=gradle&logoColor=white)
 ![JUnit](https://img.shields.io/badge/JUnit-5.10-25A162?logo=junit5&logoColor=white)
 ![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
@@ -64,49 +64,6 @@ dependencies {
 ```
 
 `pdf-snapshot-kotest` packages core/runtime APIs for Kotest consumers under `com.github.adilsoncruz.pdfsnapshottesting.kotest` to avoid class conflicts with the JUnit module.
-
-> For local development in this repository, the current project version is `0.1.0`.
-
-If you publish/consume through GitHub Packages, declare the repository in your build:
-
-*pdf-snapshot-testing* helps you validate rendered PDF output in automated tests.
-
-Traditional byte-by-byte PDF comparison is brittle because PDFs can change internally even when the visual output is identical (metadata, object ordering, compression, font embedding, etc.).
-
-This library renders PDFs to images and compares the visual result, which makes tests significantly more stable for real-world document generation scenarios.
-
----
-
-## Main benefits
-
-- **Visual-first validation**: verifies rendered content, not binary structure.
-- **More stable tests**: avoids false negatives caused by non-deterministic PDF internals.
-- **Region-based assertions**: focus checks on specific areas of a page.
-- **Multiple snapshots per document**: assert several regions in one test.
-- **JUnit 5 integration**: easy usage in existing JVM test suites.
-- **Debug/report artifacts**: generates runtime artifacts for diagnosis.
-
----
-
-## Modules
-
-- `pdf-snapshot-core`: rendering and diff engine.
-- `pdf-snapshot-runtime`: runtime report serialization and HTML report generation.
-- `pdf-snapshot-junit`: JUnit 5 API and extension helpers.
-
----
-
-## Installation (`pdf-snapshot-junit`)
-
-Use the JUnit module when writing tests:
-
-```kotlin
-dependencies {
-    testImplementation("io.github.adilsoncruz:pdf-snapshot-junit:<version>")
-}
-```
-
-`pdf-snapshot-junit` is the only artifact you need to install; it packages core/runtime APIs for consumers.
 
 > For local development in this repository, the current project version is `0.1.0`.
 
@@ -197,6 +154,48 @@ class InvoiceRegionsPdfTest {
 ### Optional debug overlay
 
 You can call `drawRegionOverlay()` while building the fluent chain to generate visual aid artifacts for coordinate debugging.
+
+---
+
+## Text assertions with `assertPdf`
+
+You can also assert text content directly within a PDF page or isolated region without full visual rendering:
+
+```kotlin
+import com.github.adilsoncruz.pdfsnapshottesting.assertPdf
+// or import com.github.adilsoncruz.pdfsnapshottesting.kotest.assertPdf for Kotest
+
+// Assert text exists anywhere on page 0
+assertPdf(pdfBytes)
+    .page(0)
+    .containsText("Invoice #1234")
+
+// Assert text exists inside a specific bounded region
+assertPdf(pdfBytes)
+    .page(0)
+    .region(x = 0, y = 0, width = 400, height = 150)
+    .containsText("Total: $1,250.00")
+```
+
+---
+
+## Rich IDE failure feedback
+
+When a snapshot fails, the test framework throws a descriptive `AssertionError` with clickable `file://` hyperlinks formatted for IDEs (IntelliJ IDEA / Android Studio):
+
+```text
+PDF snapshot mismatch in InvoiceSpec > renders invoice pdf:
+  • Page 1: difference ratio was 4.50% (tolerance: 0.01%)
+    Diff:      file:///workspace/build/pdf-snapshots/failures/InvoiceSpec/renders_invoice_pdf/page-1-diff.png
+    Generated: file:///workspace/build/pdf-snapshots/failures/InvoiceSpec/renders_invoice_pdf/page-1-generated.png
+    Expected:  file:///workspace/build/pdf-snapshots/failures/InvoiceSpec/renders_invoice_pdf/page-1-expected.png
+
+Consolidated HTML report:
+  file:///workspace/build/pdf-snapshots/index.html
+```
+
+- Clicking any image URL opens the PNG image directly inside the IDE editor.
+- The failure images (`expected`, `generated`, and `diff`) are persisted under `<snapshotsResultDir>/failures/`.
 
 ---
 
