@@ -127,6 +127,33 @@ class PdfSnapshotKotestApiTest : FunSpec({
         error.message shouldContain "Page 1: difference ratio was 15.00% (tolerance: 0.01%)"
         error.message shouldContain "file://"
     }
+
+    test("assertPdfByFile should create baseline and pass on execution") {
+        val pdf = generatePdf("baseline test")
+        val config = configForBuildDir()
+        val dir = File(config.snapshotsDir).apply { mkdirs() }
+        File(dir, "created-baseline.pdf").delete()
+
+        assertPdfByFile("created-baseline.pdf", pdf, config)
+        File(dir, "created-baseline.pdf").exists() shouldBe true
+    }
+
+    test("PdfSnapshotTest should use default runner when runner is omitted") {
+        val pdf = generatePdf("default runner test")
+        val config = configForBuildDir()
+        val dir = File(config.snapshotsDir).apply { mkdirs() }
+        File(dir, "default-runner.pdf").delete()
+
+        val snapshot =
+            PdfSnapshotTest(
+                expectedPdf = "default-runner.pdf",
+                pdfBytes = pdf,
+                config = config,
+            ).page(0).region("all", PdfRegion(0f, 0f, 200f, 200f))
+
+        val report = snapshot.assertPdfBySnapshot()
+        report.results.isEmpty() shouldBe true
+    }
 })
 
 private fun configForBuildDir(): SnapshotConfig =

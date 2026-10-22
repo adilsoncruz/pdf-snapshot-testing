@@ -197,6 +197,34 @@ class PdfSnapshotApiUnitTest {
         }
     }
 
+    @Test
+    fun `assertPdfByFile should create baseline and execute successfully`() {
+        val pdf = generatePdf("junit assertPdfByFile")
+        val config = configForTempDir()
+
+        assertDoesNotThrow {
+            assertPdfByFile("baseline-junit.pdf", pdf, config)
+        }
+
+        assertTrue(File(tempDir.toFile(), "baseline-junit.pdf").exists())
+    }
+
+    @Test
+    fun `PdfSnapshotTest should execute with default runner when runner is not specified`() {
+        val pdf = generatePdf("junit default runner")
+        val config = configForTempDir()
+
+        val snapshot =
+            PdfSnapshotTest(
+                expectedPdf = "default-runner-junit.pdf",
+                pdfBytes = pdf,
+                config = config,
+            ).page(0).region("all", PdfRegion(0f, 0f, 100f, 100f))
+
+        val dynamicTests = snapshot.assertPdfBySnapshot()
+        assertEquals(0, dynamicTests.size)
+    }
+
     private fun configForTempDir(): SnapshotConfig =
         SnapshotConfig(
             snapshotsDir = tempDir.toString(),
