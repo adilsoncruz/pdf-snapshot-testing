@@ -93,7 +93,8 @@ class PdfSnapshotApiUnitTest {
         assertEquals("ok", tests[0].displayName)
         assertEquals("fail", tests[1].displayName)
         assertDoesNotThrow { tests[0].executable.execute() }
-        assertThrows(IllegalStateException::class.java) { tests[1].executable.execute() }
+        val error = assertThrows(AssertionError::class.java) { tests[1].executable.execute() }
+        assertTrue(error.message!!.contains("fail: difference ratio was 20.00%"))
     }
 
     @Test

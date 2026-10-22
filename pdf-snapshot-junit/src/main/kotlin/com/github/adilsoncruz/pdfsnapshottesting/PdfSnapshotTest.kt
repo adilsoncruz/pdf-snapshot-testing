@@ -5,6 +5,7 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
+import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 import org.junit.jupiter.api.DynamicTest
 
 public class PdfSnapshotTest(
@@ -64,17 +65,27 @@ public class PdfSnapshotTest(
 
     public fun assertPdfBySnapshot(): Collection<DynamicTest> {
         val report = this.execute()
+        var enrichedReport = report
 
         CurrentTest.get()?.let { uniqueId ->
             SnapshotContextManager.get(uniqueId)?.let { context ->
                 SnapshotResultFileWriter.write(context, report, config)
+                enrichedReport =
+                    report.copy(
+                        testName = context.testName,
+                        className = context.className,
+                    )
             }
         }
 
         val dynamicTest =
-            report.results.map { result: SnapshotResult ->
+            enrichedReport.results.map { result: SnapshotResult ->
                 DynamicTest.dynamicTest(result.name) {
-                    if (result.matches) Unit else error("Snapshot '${result.name}' does not match.")
+                    if (result.matches) {
+                        Unit
+                    } else {
+                        enrichedReport.copy(results = listOf(result)).assertAll(config)
+                    }
                 }
             }
 
