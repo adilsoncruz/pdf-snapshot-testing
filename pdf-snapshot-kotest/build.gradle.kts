@@ -10,6 +10,11 @@ kotlin {
     jvmToolchain(21)
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 dependencies {
     compileOnly(project(":pdf-snapshot-core"))
     compileOnly(project(":pdf-snapshot-runtime"))
