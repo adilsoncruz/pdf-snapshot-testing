@@ -31,11 +31,17 @@ internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
+    var enrichedReport = report
     CurrentTest.get()?.let { uniqueId ->
         SnapshotContextManager.get(uniqueId)?.let { context ->
             SnapshotResultFileWriter.write(context, report, config)
+            enrichedReport =
+                report.copy(
+                    testName = context.testName,
+                    className = context.className,
+                )
         }
     }
 
-    report.assertAll()
+    enrichedReport.assertAll(config)
 }

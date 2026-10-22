@@ -14,6 +14,7 @@ import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import java.io.File
 import java.nio.file.Path
 
 class ModelAndAssertionUnitTest {
@@ -56,7 +57,50 @@ class ModelAndAssertionUnitTest {
         val report = SnapshotReport(results = listOf(passing, failing), expectedPageSize = 2, generatedPageSize = 2)
 
         assertTrue(report.hasFailures)
-        assertThrows(AssertionError::class.java) { report.assertAll() }
+        val error = assertThrows(AssertionError::class.java) { report.assertAll() }
+        assertTrue(error.message!!.contains("PDF snapshot mismatch in PDF snapshot:"))
+        assertTrue(error.message!!.contains("page-2: difference ratio was 20.00% (tolerance: 0.01%)"))
+        assertTrue(error.message!!.contains("Consolidated HTML report:"))
+    }
+
+    @Test
+    fun `should persist failure images and format file links when base64 is provided`() {
+        val tinyPngBase64 =
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        val failing =
+            SnapshotResult(
+                name = "Page 1",
+                expected = tinyPngBase64,
+                generated = tinyPngBase64,
+                diff = tinyPngBase64,
+                matches = false,
+                differenceRatio = 0.045f,
+                tolerancePercentage = 0.01f,
+            )
+
+        val tempResultsDir = File("build/test-failures-check")
+        tempResultsDir.deleteRecursively()
+        val config = SnapshotConfig(snapshotsResultDir = tempResultsDir.path)
+
+        val report =
+            SnapshotReport(
+                results = listOf(failing),
+                className = "InvoiceSpec",
+                testName = "renders invoice pdf",
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        val error = assertThrows(AssertionError::class.java) { report.assertAll(config) }
+
+        assertTrue(error.message!!.contains("InvoiceSpec > renders invoice pdf"))
+        assertTrue(error.message!!.contains("Page 1: difference ratio was 4.50% (tolerance: 0.01%)"))
+        assertTrue(error.message!!.contains("file://"))
+        assertTrue(error.message!!.contains("page-1-diff.png"))
+
+        val expectedDiffFile = File(tempResultsDir, "failures/InvoiceSpec/renders_invoice_pdf/page-1-diff.png")
+        assertTrue(expectedDiffFile.exists())
+        tempResultsDir.deleteRecursively()
     }
 
     @Test

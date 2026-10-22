@@ -13,6 +13,7 @@ import com.lowagie.text.pdf.PdfWriter
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import java.io.ByteArrayOutputStream
 import java.io.File
 
@@ -22,6 +23,7 @@ class PdfSnapshotKotestApiTest : FunSpec({
     afterTest {
         CurrentTest.clear()
         SnapshotContextManager.remove("uid-kotest")
+        SnapshotContextManager.remove("uid-kotest-fail")
         output.delete()
     }
 
@@ -100,6 +102,30 @@ class PdfSnapshotKotestApiTest : FunSpec({
         finalizeSnapshotReport(report)
 
         output.exists() shouldBe true
+    }
+
+    test("finalizeSnapshotReport should throw rich AssertionError with links on failure") {
+        CurrentTest.set("uid-kotest-fail")
+        SnapshotContextManager.put(
+            "uid-kotest-fail",
+            SnapshotExecutionContext("failing test", "PdfSnapshotKotestApiTest", "uid-kotest-fail"),
+        )
+
+        val report =
+            SnapshotReport(
+                results = listOf(SnapshotResult("Page 1", "e", "g", "d", false, 0.15f, 0.01f)),
+                expectedPageSize = 1,
+                generatedPageSize = 1,
+            )
+
+        val error =
+            shouldThrow<AssertionError> {
+                finalizeSnapshotReport(report, configForBuildDir())
+            }
+
+        error.message shouldContain "PdfSnapshotKotestApiTest > failing test"
+        error.message shouldContain "Page 1: difference ratio was 15.00% (tolerance: 0.01%)"
+        error.message shouldContain "file://"
     }
 })
 
