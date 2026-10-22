@@ -65,6 +65,9 @@ subprojects {
         }
     }
 
+    tasks.matching { it.name == "check" }.configureEach {
+        dependsOn(tasks.matching { it.name == "jacocoTestCoverageVerification" })
+    }
 }
 
 tasks.withType<Test>().configureEach {
@@ -89,7 +92,7 @@ tasks.withType<JacocoCoverageVerification>().configureEach {
             limit {
                 counter = "LINE"
                 value = "COVEREDRATIO"
-                minimum = "95.00".toBigDecimal()
+                minimum = "0.95".toBigDecimal()
             }
         }
     }
