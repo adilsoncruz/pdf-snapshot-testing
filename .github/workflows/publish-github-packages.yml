@@ -32,9 +32,9 @@ jobs:
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
 
-      - name: Publish JUnit artifact to GitHub Packages
+      - name: Publish artifacts to GitHub Packages
         env:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GITHUB_REPOSITORY: ${{ github.repository }}
-        run: ./gradlew :pdf-snapshot-junit:publish
+        run: ./gradlew publish

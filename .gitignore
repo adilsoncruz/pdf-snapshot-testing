@@ -17,3 +17,8 @@ out/
 # OS files
 .DS_Store
 Thumbs.db
+
+# Local development / agent scratch
+bash_events/
+conversations/
+project/
