@@ -4,37 +4,69 @@
         <meta charset="UTF-8">
         <style>
             body {
-              font-family: system-ui;
-              background: #FFF;
-              color: #303030;
-              padding: 16px;
+              font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+              background: #f8fafc;
+              color: #1e293b;
+              padding: 24px;
+              margin: 0;
+            }
+            h1 {
+              font-size: 24px;
+              font-weight: 700;
+              margin-bottom: 20px;
+              color: #0f172a;
             }
             section {
-              border:1px solid #ddd;
-              border-radius:10px;
-              padding:20px;
-              margin-bottom:30px;
+              background: #ffffff;
+              border: 1px solid #e2e8f0;
+              border-radius: 12px;
+              padding: 24px;
+              margin-bottom: 30px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             }
             .grid {
               display: grid;
               grid-template-columns: repeat(3, 1fr);
-              gap: 12px;
+              gap: 16px;
             }
             .cell {
-              background: #f5f5f5;
-              padding: 8px;
+              background: #f8fafc;
+              padding: 12px;
               border-radius: 8px;
-              margin-bottom: 5px;
+              border: 1px solid #e2e8f0;
+            }
+            .cell-diff {
+              background: #fff5f5;
+              border: 1.5px solid #feb2b2;
             }
             img {
               width: 100%;
+              border-radius: 4px;
+              box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+              display: block;
+              background: #ffffff;
             }
             h2 {
               text-align: left;
-              font-size: 14px;
+              font-size: 15px;
+              font-weight: 600;
+              margin-top: 0;
+              margin-bottom: 10px;
+            }
+            .cell-diff h2 {
+              color: #e53935;
+            }
+            h3 {
+              font-size: 16px;
+              font-weight: 600;
+              margin: 12px 0 8px;
             }
             h4 {
               text-align: right;
+              font-size: 12px;
+              color: #64748b;
+              margin-top: -30px;
+              line-height: 1.5;
             }
         </style>
     </head>
