@@ -82,25 +82,29 @@ public object DiffByBoudingBox {
 
         val gDiff = diffImage.createGraphics()
         gDiff.drawImage(expected, 0, 0, null)
-        gDiff.stroke = BasicStroke(3f)
+        val strokeWidth = maxOf(3f, (width / 300).toFloat())
+        gDiff.stroke = BasicStroke(strokeWidth)
 
         // 🔴 Added
-        gDiff.color = Color(255, 0, 0, 200)
         for (box in addedBoxes) {
+            highlightBox(diffImage, box, Color(255, 0, 0, 50))
+            gDiff.color = Color(255, 0, 0, 220)
             gDiff.drawRect(box.x, box.y, box.width, box.height)
             highlightBox(generatedHighlighted, box, Color(255, 0, 0, 80))
         }
 
         // 🔵 Removed
-        gDiff.color = Color(0, 120, 255, 200)
         for (box in removedBoxes) {
+            highlightBox(diffImage, box, Color(0, 120, 255, 50))
+            gDiff.color = Color(0, 120, 255, 220)
             gDiff.drawRect(box.x, box.y, box.width, box.height)
             highlightBox(expectedHighlighted, box, Color(0, 120, 255, 80))
         }
 
         // 🟣 Changed
-        gDiff.color = Color(180, 0, 180, 200)
         for (box in changedBoxes) {
+            highlightBox(diffImage, box, Color(180, 0, 180, 50))
+            gDiff.color = Color(180, 0, 180, 220)
             gDiff.drawRect(box.x, box.y, box.width, box.height)
         }
 
