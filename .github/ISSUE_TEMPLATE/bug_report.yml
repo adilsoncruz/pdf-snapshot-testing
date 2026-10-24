@@ -1,0 +1,70 @@
+name: Bug Report
+description: Report an issue or unexpected behavior in pdf-snapshot-testing
+title: "fix: [Short summary of the bug]"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report an issue!
+        Please verify if your issue has not already been reported by searching existing issues.
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the bug is.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Steps or a minimal code example to reproduce the behavior.
+      placeholder: |
+        1. Setup PDF snapshot test with...
+        2. Run test using...
+        3. See error...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen instead.
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs / Stack Trace
+      description: Paste any relevant logs, test failure messages, or stack traces.
+      render: shell
+
+  - type: dropdown
+    id: module
+    attributes:
+      label: Affected Module(s)
+      multiple: true
+      options:
+        - pdf-snapshot-core
+        - pdf-snapshot-runtime
+        - pdf-snapshot-junit
+        - pdf-snapshot-kotest
+        - Build / Gradle tooling
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: OS, JDK version, Kotlin version, test framework version.
+      value: |
+        - OS: [e.g. macOS 14 / Ubuntu 22.04 / Windows 11]
+        - JDK: [e.g. OpenJDK 21]
+        - Test Framework: [e.g. JUnit 5.10 / Kotest 5.9]
+        - Library Version: [e.g. 0.1.0]
+    validations:
+      required: true
