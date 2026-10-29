@@ -53,7 +53,7 @@ subprojects {
     }
 
     extensions.configure<DetektExtension> {
-        toolVersion = "1.23.7"
+        toolVersion = "1.23.8"
         buildUponDefaultConfig = true
         config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
     }

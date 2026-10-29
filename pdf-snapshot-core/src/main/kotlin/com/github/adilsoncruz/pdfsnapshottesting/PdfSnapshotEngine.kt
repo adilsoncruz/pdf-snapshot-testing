@@ -6,7 +6,7 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotRequest
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
-import org.apache.pdfbox.pdmodel.PDDocument
+import org.apache.pdfbox.Loader
 import org.apache.pdfbox.rendering.ImageType
 import org.apache.pdfbox.rendering.PDFRenderer
 import org.apache.pdfbox.text.PDFTextStripperByArea
@@ -50,7 +50,7 @@ public class PdfSnapshotEngine(
     ): String {
         require(pageIndex >= 0) { "Page index must be >= 0" }
 
-        PDDocument.load(pdfBytes).use { document ->
+        Loader.loadPDF(pdfBytes).use { document ->
             require(pageIndex < document.numberOfPages) {
                 "Page index $pageIndex is out of bounds for PDF with ${document.numberOfPages} pages"
             }
@@ -173,7 +173,7 @@ public class PdfSnapshotEngine(
         pdfBytes: ByteArray,
         dpi: Float = 144f,
     ): List<BufferedImage> {
-        PDDocument.load(pdfBytes).use { document ->
+        Loader.loadPDF(pdfBytes).use { document ->
             val renderer = PDFRenderer(document)
 
             return (0 until document.numberOfPages).map { pageIndex ->

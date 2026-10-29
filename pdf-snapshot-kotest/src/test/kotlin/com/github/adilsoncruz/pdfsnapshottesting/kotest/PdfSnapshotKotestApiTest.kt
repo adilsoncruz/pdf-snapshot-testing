@@ -7,13 +7,13 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotResult
-import com.lowagie.text.Document
-import com.lowagie.text.Paragraph
-import com.lowagie.text.pdf.PdfWriter
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldContain
+import org.openpdf.text.Document
+import org.openpdf.text.Paragraph
+import org.openpdf.text.pdf.PdfWriter
 import java.io.ByteArrayOutputStream
 import java.io.File
 
