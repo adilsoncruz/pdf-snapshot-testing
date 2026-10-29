@@ -20,14 +20,14 @@ dependencies {
     compileOnly(project(":pdf-snapshot-runtime"))
 
     compileOnly("io.kotest:kotest-framework-engine-jvm:5.9.1")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.4")
 
     testImplementation("io.kotest:kotest-runner-junit5-jvm:5.9.1")
     testImplementation("io.kotest:kotest-assertions-core-jvm:5.9.1")
     testImplementation(project(":pdf-snapshot-core"))
     testImplementation(project(":pdf-snapshot-runtime"))
 
-    testImplementation("com.github.librepdf:openpdf:1.3.43")
+    testImplementation("com.github.librepdf:openpdf:3.0.5")
 }
 
 tasks.jar {

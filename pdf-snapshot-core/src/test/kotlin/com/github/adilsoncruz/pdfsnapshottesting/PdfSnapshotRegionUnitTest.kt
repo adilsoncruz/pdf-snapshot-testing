@@ -2,14 +2,14 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.PdfRegion
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
-import com.lowagie.text.Document
-import com.lowagie.text.Paragraph
-import com.lowagie.text.pdf.PdfWriter
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.io.TempDir
+import org.openpdf.text.Document
+import org.openpdf.text.Paragraph
+import org.openpdf.text.pdf.PdfWriter
 import java.io.ByteArrayOutputStream
 import java.nio.file.Path
 import java.util.Collections.emptyList

@@ -20,17 +20,17 @@ dependencies {
     compileOnly(project(":pdf-snapshot-runtime"))
 
     compileOnly("org.junit.jupiter:junit-jupiter-api:5.11.4")
-    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
+    implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.22.4")
 
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
     testImplementation("org.junit.platform:junit-platform-launcher:1.11.4")
-    testImplementation("org.mockito.kotlin:mockito-kotlin:5.4.0")
+    testImplementation("org.mockito.kotlin:mockito-kotlin:6.4.0")
     testImplementation(project(":pdf-snapshot-core"))
     testImplementation(project(":pdf-snapshot-runtime"))
 
     // Para gerar PDFs de teste
-    testImplementation("com.github.librepdf:openpdf:1.3.43")
+    testImplementation("com.github.librepdf:openpdf:3.0.5")
 }
 
 tasks.jar {
