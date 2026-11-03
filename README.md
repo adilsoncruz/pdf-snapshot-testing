@@ -135,7 +135,7 @@ import org.junit.jupiter.api.TestFactory
 class InvoiceRegionsPdfTest {
 
     @TestFactory
-    fun `should match key regions`: Collection<DynamicTest> {
+    fun `should match key regions`(): Collection<DynamicTest> {
         val generatedPdf: ByteArray = generateInvoicePdf()
 
         return PdfSnapshotTest(
