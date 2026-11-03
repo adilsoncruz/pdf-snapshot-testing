@@ -1,6 +1,8 @@
 import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.codehaus.groovy.tools.shell.util.Logger.io
+import org.gradle.api.publish.PublishingExtension
 import org.gradle.api.tasks.testing.logging.TestLogEvent
+import org.gradle.plugins.signing.SigningExtension
 import org.gradle.testing.jacoco.tasks.JacocoCoverageVerification
 import org.gradle.testing.jacoco.tasks.JacocoReport
 import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
@@ -26,6 +28,23 @@ subprojects {
     apply(plugin = "org.jlleitschuh.gradle.ktlint")
     apply(plugin = "io.gitlab.arturbosch.detekt")
     apply(plugin = "jacoco")
+
+    plugins.withId("maven-publish") {
+        apply(plugin = "signing")
+
+        extensions.configure<SigningExtension> {
+            val signingKey = findProperty("signingKey") as String?
+                ?: System.getenv("SIGNING_KEY")
+            val signingPassword = findProperty("signingPassword") as String?
+                ?: System.getenv("SIGNING_PASSWORD")
+
+            if (!signingKey.isNullOrBlank()) {
+                useInMemoryPgpKeys(signingKey, signingPassword)
+                val publishing = extensions.getByType<PublishingExtension>()
+                sign(publishing.publications)
+            }
+        }
+    }
 
     tasks.withType<Test>().configureEach {
         useJUnitPlatform()
