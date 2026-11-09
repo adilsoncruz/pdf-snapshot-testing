@@ -2,7 +2,6 @@ package com.github.adilsoncruz.pdfsnapshottesting
 
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
-import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 
 public fun assertPdfByFile(
     expected: String,
@@ -24,17 +23,5 @@ internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    var enrichedReport = report
-    CurrentTest.get()?.let { uniqueId ->
-        SnapshotContextManager.get(uniqueId)?.let { context ->
-            SnapshotResultFileWriter.write(context, report, config)
-            enrichedReport =
-                report.copy(
-                    testName = context.testName,
-                    className = context.className,
-                )
-        }
-    }
-
-    enrichedReport.assertAll(config)
+    SnapshotReportFinalizerLifecycle.finalizeReport(report, config)
 }

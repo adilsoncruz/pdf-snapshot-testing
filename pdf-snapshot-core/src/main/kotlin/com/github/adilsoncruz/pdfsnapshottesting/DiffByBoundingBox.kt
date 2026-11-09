@@ -7,7 +7,13 @@ import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-public object DiffByBoudingBox {
+public object DiffByBoundingBox : DiffStrategy {
+    override fun diff(
+        expected: BufferedImage,
+        generated: BufferedImage,
+        config: SnapshotConfig,
+    ): DiffResult = buildDiffImageWithBoundingBox(expected, generated, config)
+
     public fun buildDiffImageWithBoundingBox(
         expected: BufferedImage,
         generated: BufferedImage,
@@ -208,3 +214,9 @@ public object DiffByBoudingBox {
         return copy
     }
 }
+
+@Deprecated(
+    message = "Use DiffByBoundingBox instead",
+    replaceWith = ReplaceWith("DiffByBoundingBox"),
+)
+public typealias DiffByBoudingBox = DiffByBoundingBox

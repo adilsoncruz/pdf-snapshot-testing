@@ -18,13 +18,15 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 
 class PdfSnapshotKotestApiTest : FunSpec({
-    val output = File("build/pdf-snapshots/raw/PdfSnapshotKotestApiTest.json")
+    val output = File("build/pdf-snapshots/raw/PdfSnapshotKotestApiTest-writes_report.json")
+    val failOutput = File("build/pdf-snapshots/raw/PdfSnapshotKotestApiTest-failing_test.json")
 
     afterTest {
         CurrentTest.clear()
         SnapshotContextManager.remove("uid-kotest")
         SnapshotContextManager.remove("uid-kotest-fail")
         output.delete()
+        failOutput.delete()
     }
 
     test("PdfSnapshotTest should reject negative page index") {
@@ -40,9 +42,38 @@ class PdfSnapshotKotestApiTest : FunSpec({
 
         val sameAfterPage = snapshot.page(0)
         val sameAfterRegion = snapshot.region("header", PdfRegion(0f, 0f, 200f, 120f))
+        val sameAfterOverlay = snapshot.drawRegionOverlay("overlay.png")
 
         sameAfterPage shouldBe snapshot
         sameAfterRegion shouldBe snapshot
+        sameAfterOverlay shouldBe snapshot
+    }
+
+    test("PdfSnapshotTest should draw overlay when requested") {
+        val pdf = generatePdf("kotest overlay test")
+        val config = configForBuildDir()
+        val dir = File(config.snapshotsDir).apply { mkdirs() }
+        File(dir, "overlay-kotest.pdf").delete()
+
+        // first create baseline
+        val snapshot1 =
+            PdfSnapshotTest("overlay-kotest.pdf", pdf, config)
+                .page(0)
+                .region("box", PdfRegion(0f, 0f, 100f, 100f))
+                .drawRegionOverlay("kotest-overlay.png")
+        snapshot1.assertPdfBySnapshot()
+
+        // second run produces overlay
+        val snapshot2 =
+            PdfSnapshotTest("overlay-kotest.pdf", pdf, config)
+                .page(0)
+                .region("box", PdfRegion(0f, 0f, 100f, 100f))
+                .drawRegionOverlay("kotest-overlay.png")
+        snapshot2.assertPdfBySnapshot()
+
+        val overlayFile = File(config.snapshotsResultDir, "overlays/kotest-overlay.png")
+        overlayFile.exists() shouldBe true
+        overlayFile.delete()
     }
 
     test("assertPdf should validate text inside a region") {
@@ -59,7 +90,7 @@ class PdfSnapshotKotestApiTest : FunSpec({
                 pdfBytes = generatePdf("content"),
                 config = configForBuildDir(),
                 runner =
-                    PdfSnapshotTest.SnapshotRunner { _, _, _, _, _ ->
+                    PdfSnapshotTest.SnapshotRunner { _, _, _, _, _, _, _ ->
                         SnapshotReport(
                             results = listOf(SnapshotResult("ok", "e", "g", "d", true, 0f, 0f)),
                             expectedPageSize = 1,

@@ -15,6 +15,10 @@ public class PdfSnapshotTest(
     private var pageIndex: Int = 0
     private val regions = mutableListOf<SnapshotRequest>()
 
+    // Overlay config (optional)
+    private var drawOverlay: Boolean = false
+    private var overlayName: String? = null
+
     public fun page(index: Int): PdfSnapshotTest {
         require(index >= 0) { "Page index must be >= 0" }
         this.pageIndex = index
@@ -29,6 +33,12 @@ public class PdfSnapshotTest(
         return this
     }
 
+    public fun drawRegionOverlay(name: String? = null): PdfSnapshotTest {
+        this.drawOverlay = true
+        this.overlayName = name
+        return this
+    }
+
     private fun execute(): SnapshotReport {
         return runner.run(
             expectedPdf = expectedPdf,
@@ -36,6 +46,8 @@ public class PdfSnapshotTest(
             pageIndex = pageIndex,
             requests = regions,
             config = config,
+            drawOverlay = drawOverlay,
+            overlayName = overlayName,
         )
     }
 
@@ -52,13 +64,22 @@ public class PdfSnapshotTest(
             pageIndex: Int,
             requests: List<SnapshotRequest>,
             config: SnapshotConfig,
+            drawOverlay: Boolean,
+            overlayName: String?,
         ): SnapshotReport
     }
 
     private companion object {
         fun defaultSnapshotRunner(): SnapshotRunner =
-            SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config ->
-                PdfSnapshotEngine(config).run(expectedPdf, pdfBytes, pageIndex, requests)
+            SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config, drawOverlay, overlayName ->
+                PdfSnapshotEngine(config).run(
+                    expectedPdf = expectedPdf,
+                    pdfBytes = pdfBytes,
+                    pageIndex = pageIndex,
+                    requests = requests,
+                    drawOverlay = drawOverlay,
+                    overlayName = overlayName,
+                )
             }
     }
 }

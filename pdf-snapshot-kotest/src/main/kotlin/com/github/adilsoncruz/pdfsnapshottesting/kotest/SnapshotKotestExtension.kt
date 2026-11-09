@@ -1,17 +1,34 @@
 package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
 import com.github.adilsoncruz.pdfsnapshottesting.CurrentTest
+import com.github.adilsoncruz.pdfsnapshottesting.CurrentTestCoroutineContext
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotContextManager
 import com.github.adilsoncruz.pdfsnapshottesting.SnapshotExecutionContext
 import com.github.adilsoncruz.pdfsnapshottesting.generateSnapshotHtmlReport
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
+import io.kotest.core.extensions.TestCaseExtension
 import io.kotest.core.listeners.AfterProjectListener
 import io.kotest.core.listeners.AfterTestListener
 import io.kotest.core.listeners.BeforeTestListener
 import io.kotest.core.test.TestCase
 import io.kotest.core.test.TestResult
+import kotlinx.coroutines.withContext
 
-public object SnapshotKotestExtension : BeforeTestListener, AfterTestListener, AfterProjectListener {
+public object SnapshotKotestExtension :
+    BeforeTestListener,
+    AfterTestListener,
+    AfterProjectListener,
+    TestCaseExtension {
+    override suspend fun intercept(
+        testCase: TestCase,
+        execute: suspend (TestCase) -> TestResult,
+    ): TestResult {
+        val uniqueId = testCase.descriptor.id.value
+        return withContext(CurrentTestCoroutineContext.asContextElement(uniqueId)) {
+            execute(testCase)
+        }
+    }
+
     override suspend fun beforeTest(testCase: TestCase) {
         val uniqueId = testCase.descriptor.id.value
         CurrentTest.set(uniqueId)

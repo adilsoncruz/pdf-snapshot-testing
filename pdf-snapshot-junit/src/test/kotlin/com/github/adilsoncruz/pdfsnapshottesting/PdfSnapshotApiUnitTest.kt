@@ -84,7 +84,7 @@ class PdfSnapshotApiUnitTest {
                 expectedPdf = "stub.pdf",
                 pdfBytes = generatePdf("content"),
                 config = configForTempDir(),
-                runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _ -> report },
+                runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _, _, _ -> report },
             )
 
         val tests = snapshot.assertPdfBySnapshot().toList()
@@ -134,7 +134,7 @@ class PdfSnapshotApiUnitTest {
 
     @Test
     fun `finalizeSnapshotReport should write runtime report when CurrentTest is present`() {
-        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
+        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest-writes_report.json")
         output.delete()
 
         val uniqueId = "uid-finalize-report"
@@ -162,7 +162,7 @@ class PdfSnapshotApiUnitTest {
 
     @Test
     fun `PdfSnapshotTest should write runtime report when CurrentTest is present`() {
-        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest.json")
+        val output = File("build/pdf-snapshots/raw/PdfSnapshotApiUnitTest-writes_report.json")
         output.delete()
 
         val uniqueId = "uid-pdf-snapshot-test"
@@ -184,7 +184,7 @@ class PdfSnapshotApiUnitTest {
                     expectedPdf = "stub.pdf",
                     pdfBytes = generatePdf("content"),
                     config = configForTempDir(),
-                    runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _ -> report },
+                    runner = PdfSnapshotTest.SnapshotRunner { _, _, _, _, _, _, _ -> report },
                 )
 
             snapshot.assertPdfBySnapshot()
@@ -223,6 +223,41 @@ class PdfSnapshotApiUnitTest {
 
         val dynamicTests = snapshot.assertPdfBySnapshot()
         assertEquals(0, dynamicTests.size)
+    }
+
+    @Test
+    fun `PdfSnapshotTest should draw overlay when requested`() {
+        val pdf = generatePdf("junit overlay test")
+        val config = configForTempDir()
+
+        val snapshot =
+            PdfSnapshotTest(
+                expectedPdf = "overlay-junit.pdf",
+                pdfBytes = pdf,
+                config = config,
+            ).page(0)
+                .region("box", PdfRegion(0f, 0f, 100f, 100f))
+                .drawRegionOverlay("junit-overlay.png")
+
+        val tests = snapshot.assertPdfBySnapshot().toList()
+        assertEquals(0, tests.size)
+        // create baseline first
+        val baseline = File(tempDir.toFile(), "overlay-junit.pdf")
+        assertTrue(baseline.exists())
+
+        // second run performs overlay
+        val secondSnapshot =
+            PdfSnapshotTest(
+                expectedPdf = "overlay-junit.pdf",
+                pdfBytes = pdf,
+                config = config,
+            ).page(0)
+                .region("box", PdfRegion(0f, 0f, 100f, 100f))
+                .drawRegionOverlay("junit-overlay.png")
+
+        secondSnapshot.assertPdfBySnapshot()
+        val overlayFile = File(config.snapshotsResultDir, "overlays/junit-overlay.png")
+        assertTrue(overlayFile.exists())
     }
 
     private fun configForTempDir(): SnapshotConfig =

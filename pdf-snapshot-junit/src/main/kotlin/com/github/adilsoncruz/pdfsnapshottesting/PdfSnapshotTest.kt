@@ -60,6 +60,8 @@ public class PdfSnapshotTest(
             pageIndex = pageIndex,
             requests = regions,
             config = config,
+            drawOverlay = drawOverlay,
+            overlayName = overlayName,
         )
     }
 
@@ -99,13 +101,22 @@ public class PdfSnapshotTest(
             pageIndex: Int,
             requests: List<SnapshotRequest>,
             config: SnapshotConfig,
+            drawOverlay: Boolean,
+            overlayName: String?,
         ): SnapshotReport
     }
 
     private companion object {
         fun defaultSnapshotRunner(): SnapshotRunner =
-            SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config ->
-                PdfSnapshotEngine(config).run(expectedPdf, pdfBytes, pageIndex, requests)
+            SnapshotRunner { expectedPdf, pdfBytes, pageIndex, requests, config, drawOverlay, overlayName ->
+                PdfSnapshotEngine(config).run(
+                    expectedPdf = expectedPdf,
+                    pdfBytes = pdfBytes,
+                    pageIndex = pageIndex,
+                    requests = requests,
+                    drawOverlay = drawOverlay,
+                    overlayName = overlayName,
+                )
             }
     }
 }

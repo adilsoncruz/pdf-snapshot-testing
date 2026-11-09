@@ -43,13 +43,13 @@ class DiffStrategiesUnitTest {
     }
 
     @Test
-    fun `DiffByBoudingBox should detect added area`() {
+    fun `DiffByBoundingBox should detect added area`() {
         val expected = image(30, 30, Color.WHITE)
         val generated = image(30, 30, Color.WHITE)
         fillRect(generated, 5, 5, 8, 8, Color.BLACK)
 
         val result =
-            DiffByBoudingBox.buildDiffImageWithBoundingBox(
+            DiffByBoundingBox.diff(
                 expected,
                 generated,
                 SnapshotConfig(tolerancePercent = 0f),
@@ -60,14 +60,14 @@ class DiffStrategiesUnitTest {
     }
 
     @Test
-    fun `DiffByBoudingBox should detect changed area`() {
+    fun `DiffByBoundingBox should detect changed area`() {
         val expected = image(30, 30, Color.WHITE)
         val generated = image(30, 30, Color.WHITE)
         fillRect(expected, 10, 10, 8, 8, Color(40, 120, 80))
         fillRect(generated, 10, 10, 8, 8, Color(105, 80, 90))
 
         val result =
-            DiffByBoudingBox.buildDiffImageWithBoundingBox(
+            DiffByBoundingBox.buildDiffImageWithBoundingBox(
                 expected,
                 generated,
                 SnapshotConfig(tolerancePercent = 0f),
@@ -75,6 +75,28 @@ class DiffStrategiesUnitTest {
 
         assertFalse(result.matches)
         assertTrue(result.changedBoxes.orEmpty().isNotEmpty())
+    }
+
+    @Test
+    fun `DiffByPixel should satisfy DiffStrategy diff call`() {
+        val expected = image(20, 20, Color.WHITE)
+        val generated = image(20, 20, Color.WHITE)
+
+        val result = DiffByPixel.diff(expected, generated, SnapshotConfig())
+
+        assertTrue(result.matches)
+        assertEquals(0f, result.differenceRatio)
+    }
+
+    @Test
+    fun `deprecated alias DiffByBoudingBox should remain compatible`() {
+        val expected = image(20, 20, Color.WHITE)
+        val generated = image(20, 20, Color.WHITE)
+
+        @Suppress("DEPRECATION")
+        val result = DiffByBoudingBox.buildDiffImageWithBoundingBox(expected, generated, SnapshotConfig())
+
+        assertTrue(result.matches)
     }
 
     private fun image(
