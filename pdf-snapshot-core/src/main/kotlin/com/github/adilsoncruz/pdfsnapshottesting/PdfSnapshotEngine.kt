@@ -25,6 +25,7 @@ import javax.imageio.ImageIO
  */
 public class PdfSnapshotEngine(
     private val config: SnapshotConfig = SnapshotConfig(),
+    private val diffStrategy: DiffStrategy = DiffByBoundingBox,
 ) {
     public fun run(
         expectedPdf: String,
@@ -88,6 +89,8 @@ public class PdfSnapshotEngine(
         pdfBytes: ByteArray,
         pageIndex: Int,
         requests: List<SnapshotRequest> = emptyList(),
+        drawOverlay: Boolean = false,
+        overlayName: String? = null,
     ): SnapshotReport {
         require(requests.isNotEmpty()) {
             "No snapshot regions defined"
@@ -102,6 +105,15 @@ public class PdfSnapshotEngine(
 
         val pageImage = pages[pageIndex]
         val expectedImage = renderPages(expectedPdfFile.readBytes(), config.dpi)[pageIndex]
+
+        if (drawOverlay) {
+            RegionOverlayDrawer.drawOverlay(
+                pageImage = pageImage,
+                requests = requests,
+                config = config,
+                outputFileName = overlayName,
+            )
+        }
 
         val results = buildRegionComparisonResults(expectedImage, pageImage, requests)
 
@@ -139,7 +151,7 @@ public class PdfSnapshotEngine(
                 imageRegion.height,
             )
 
-        val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedImageRegion, actualSnapshotRegion, config)
+        val diff = diffStrategy.diff(expectedImageRegion, actualSnapshotRegion, config)
 
         return SnapshotResult(
             request.name,
@@ -204,7 +216,7 @@ public class PdfSnapshotEngine(
                             BufferedImage.TYPE_INT_ARGB,
                         )
                     }
-                val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+                val diff = diffStrategy.diff(expectedSnapshot, actualSnapshot, config)
 
                 pagesResults +=
                     SnapshotResult(
@@ -238,7 +250,7 @@ public class PdfSnapshotEngine(
                         BufferedImage.TYPE_INT_ARGB,
                     )
                 }
-            val diff = DiffByBoudingBox.buildDiffImageWithBoundingBox(expectedSnapshot, actualSnapshot, config)
+            val diff = diffStrategy.diff(expectedSnapshot, actualSnapshot, config)
             pagesResults +=
                 SnapshotResult(
                     "Page ${index + 1}",

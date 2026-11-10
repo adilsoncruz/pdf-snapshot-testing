@@ -11,6 +11,7 @@ public fun generateSnapshotHtmlReport(
 
     val reports =
         rawDir.listFiles()
+            ?.sortedBy { it.name }
             ?.map {
                 SnapshotJsonSerializer.deserialize(it.readText())
             }

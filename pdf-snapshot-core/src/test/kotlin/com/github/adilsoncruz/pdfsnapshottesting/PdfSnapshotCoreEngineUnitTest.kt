@@ -184,10 +184,59 @@ class PdfSnapshotCoreEngineUnitTest {
         assertTrue(results.first().matches)
     }
 
+    @Test
+    fun `engine should allow custom diff strategy`() {
+        var customDiffCalled = false
+        val customStrategy =
+            DiffStrategy { expected, generated, config ->
+                customDiffCalled = true
+                DiffByPixel.diff(expected, generated, config)
+            }
+        val customEngine =
+            PdfSnapshotEngine(
+                config =
+                    SnapshotConfig(
+                        snapshotsDir = tempDir.toString(),
+                        tolerancePercent = 0f,
+                        dpi = 72f,
+                    ),
+                diffStrategy = customStrategy,
+            )
+        val pdfBytes = onePagePdf()
+        customEngine.run("custom-strategy.pdf", pdfBytes)
+        val report = customEngine.run("custom-strategy.pdf", pdfBytes)
+
+        assertTrue(customDiffCalled)
+        assertEquals(1, report.results.size)
+        assertTrue(report.results.first().matches)
+    }
+
+    @Test
+    fun `engine should draw overlay when drawOverlay is enabled`() {
+        val engine = engine()
+        val pdfBytes = onePagePdf()
+        val requests = listOf(SnapshotRequest("header", PdfRegion(0f, 0f, 50f, 50f)))
+        engine.run("overlay-test.pdf", pdfBytes, pageIndex = 0, requests = requests)
+
+        val report =
+            engine.run(
+                expectedPdf = "overlay-test.pdf",
+                pdfBytes = pdfBytes,
+                pageIndex = 0,
+                requests = requests,
+                drawOverlay = true,
+                overlayName = "debug-overlay.png",
+            )
+
+        assertEquals(1, report.results.size)
+        assertTrue(tempDir.resolve("overlays/debug-overlay.png").toFile().exists())
+    }
+
     private fun engine(): PdfSnapshotEngine =
         PdfSnapshotEngine(
             SnapshotConfig(
                 snapshotsDir = tempDir.toString(),
+                snapshotsResultDir = tempDir.toString(),
                 tolerancePercent = 0f,
                 dpi = 72f,
             ),

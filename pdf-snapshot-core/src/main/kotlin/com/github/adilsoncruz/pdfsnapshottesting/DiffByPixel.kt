@@ -6,7 +6,13 @@ import java.awt.BasicStroke
 import java.awt.Color
 import java.awt.image.BufferedImage
 
-public object DiffByPixel {
+public object DiffByPixel : DiffStrategy {
+    override fun diff(
+        expected: BufferedImage,
+        generated: BufferedImage,
+        config: SnapshotConfig,
+    ): DiffResult = buildDiffImage(expected, generated, config)
+
     public fun buildDiffImage(
         expected: BufferedImage,
         generated: BufferedImage,

@@ -5,15 +5,18 @@ import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
 import java.io.File
 
 public object SnapshotResultFileWriter {
+    private val invalidFileChars = Regex("[^a-zA-Z0-9._-]")
+
     public fun write(
         context: SnapshotExecutionContext,
         report: SnapshotReport,
         config: SnapshotConfig = SnapshotConfig(),
-    ) {
+    ): File {
         val dir = File(config.snapshotsResultDir, "raw")
         dir.mkdirs()
 
-        val file = File(dir, "${context.className}.json")
+        val baseName = "${sanitize(context.className)}-${sanitize(context.testName)}"
+        val file = resolveNextFile(dir, baseName)
         file.writeText(
             SnapshotJsonSerializer.serialize(
                 SnapshotReport(
@@ -25,5 +28,26 @@ public object SnapshotResultFileWriter {
                 ),
             ),
         )
+        return file
+    }
+
+    private fun sanitize(value: String): String = value.trim().replace(invalidFileChars, "_")
+
+    private fun resolveNextFile(
+        dir: File,
+        baseName: String,
+    ): File {
+        val primary = File(dir, "$baseName.json")
+        if (!primary.exists()) {
+            return primary
+        }
+        var sequence = 2
+        while (true) {
+            val candidate = File(dir, "$baseName-$sequence.json")
+            if (!candidate.exists()) {
+                return candidate
+            }
+            sequence++
+        }
     }
 }

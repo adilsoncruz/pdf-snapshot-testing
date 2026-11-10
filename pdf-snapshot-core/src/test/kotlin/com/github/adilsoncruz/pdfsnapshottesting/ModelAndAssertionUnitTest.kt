@@ -26,9 +26,8 @@ class ModelAndAssertionUnitTest {
         val config = SnapshotConfig()
 
         assertEquals(300f, config.dpi)
-        assertEquals(10, config.pixelThreshold)
+        assertEquals(10, config.minorPixelThreshold)
         assertEquals("src/test/resources/pdf-snapshots", config.snapshotsDir)
-        assertFalse(config.writeActualOnFailure)
     }
 
     @Test

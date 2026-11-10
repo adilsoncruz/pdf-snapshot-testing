@@ -1,14 +1,11 @@
 package com.github.adilsoncruz.pdfsnapshottesting.kotest
 
 import com.github.adilsoncruz.pdfsnapshottesting.AssertPdfBySnapshot
-import com.github.adilsoncruz.pdfsnapshottesting.CurrentTest
 import com.github.adilsoncruz.pdfsnapshottesting.PdfSnapshotEngine
 import com.github.adilsoncruz.pdfsnapshottesting.PdfTextAssertion
-import com.github.adilsoncruz.pdfsnapshottesting.SnapshotContextManager
-import com.github.adilsoncruz.pdfsnapshottesting.SnapshotResultFileWriter
+import com.github.adilsoncruz.pdfsnapshottesting.SnapshotReportFinalizerLifecycle
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotConfig
 import com.github.adilsoncruz.pdfsnapshottesting.models.SnapshotReport
-import com.github.adilsoncruz.pdfsnapshottesting.models.assertAll
 
 public fun assertPdfByFile(
     expected: String,
@@ -31,17 +28,5 @@ internal fun finalizeSnapshotReport(
     report: SnapshotReport,
     config: SnapshotConfig = SnapshotConfig(),
 ) {
-    var enrichedReport = report
-    CurrentTest.get()?.let { uniqueId ->
-        SnapshotContextManager.get(uniqueId)?.let { context ->
-            SnapshotResultFileWriter.write(context, report, config)
-            enrichedReport =
-                report.copy(
-                    testName = context.testName,
-                    className = context.className,
-                )
-        }
-    }
-
-    enrichedReport.assertAll(config)
+    SnapshotReportFinalizerLifecycle.finalizeReport(report, config)
 }

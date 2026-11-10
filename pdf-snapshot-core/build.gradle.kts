@@ -8,7 +8,7 @@ kotlin {
 }
 
 dependencies {
-    api("org.apache.pdfbox:pdfbox:3.0.8")
+    implementation("org.apache.pdfbox:pdfbox:3.0.8")
     // Tests
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.11.4")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.11.4")
